@@ -177,9 +177,9 @@ The two alternative rules are available for stopping entry or predictors in step
 # A path, if included, must match the setup of your laptop. If no path is specified, the file
 # is assumed to be in the R project directory.
 # Edit following line (two lines) for path and filenames
-fileClimate <- paste(here(), '/PsepAugTahoe.txt', sep = "")
+fileClimate <- paste(here(), '/KGUPrecipWinter.txt', sep = "")
 #'/home/dave/GitWork/TRISH-R/PsepAugTahoe.txt'
-fileTree <- paste(here(), '/ChronsTahoe5.txt', sep = "")
+fileTree <- paste(here(), '/KGUChron.txt', sep = "")
 
 # Specify desired calibration period of the reconstruction model. This period is also used for any 
 # correlation screening of the pool of potential predictors, and for cross-validation of the
@@ -272,10 +272,10 @@ The time series plot of *y* is covers all years of the provided *y*. The list of
 ```{r}
 
 # READ INPUT TIME SERIES
-#V <- read.table(fileClimate,sep="\t",header=FALSE) # input predictand, tab separated
-V <- read.table(fileClimate,sep="",header=FALSE) # input predictand, space separated
-#U <- read.table(fileTree,sep="\t",header=TRUE)  # input chronologies, tab-sep
-U <- read.table(fileTree,sep="",header=TRUE)  # input chronologies, space-sep
+V <- read.table(fileClimate,sep="\t",header=FALSE) # input predictand, tab separated
+#V <- read.table(fileClimate,sep="",header=FALSE) # input predictand, space separated
+U <- read.table(fileTree,sep="\t",header=TRUE)  # input chronologies, tab-sep
+#U <- read.table(fileTree,sep="",header=TRUE)  # input chronologies, space-sep
 
 #--- TRIM PREDICTAND TO ELIMINATE NA'S
 V<-as.matrix(V)
