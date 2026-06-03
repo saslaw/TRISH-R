@@ -42,14 +42,13 @@ CrossValid1<- function(X, y, nNeg, nPos, i2) {
   library("pracma") # needed for emulation of Matlab "backslash" operator through
   # QR decomposition
   
-  source(paste(code_dir,"/LeaveOut.R",sep="")) # form pointer matrix for leave-m-out cross-validation
+  source(paste(code_dir,"LeaveOut.R",sep="")) # form pointer matrix for leave-m-out cross-validation
   
   
   #--- Build pointer matrix for predictor sets
-  #X <- W3
+  
   X<-as.matrix(X)
   mX <-dim(X)[1]
-  # y <- yrU
   y <- as.matrix(y)
   H<-LeaveOut(nNeg,nPos,mX)
   Lin <- H$Lin

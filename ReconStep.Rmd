@@ -1,21 +1,12 @@
 ---
 title: "Climate reconstruction from tree rings by stepwise regression"
-date: last-modified 
-published-title: 'Last modified'
-execute: 
-  cache: false
-  echo: false
-  warning: false
-format: 
-  html:
-    toc: false
-    toc-location: right
-    toc-title: Contents
-    page-layout: full
-fig-cap-location: bottom
-tbl-cap-location: top
-theme: zephyr
-bibliography: ReconStep.bib
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+# Edit following line to path where ReconStep.bib stored on your computer
+bibliography: /home/dave/GitWork/TRISH-R/ReconStep.bib
 ---
 
 ReconStep.Rmd is an instructional [R Markdown](http://rmarkdown.rstudio.com) notebook ("Rmd" file) to illustrate the reconstruction of a climatic or hydrologic time series from a network of tree-ring site chronologies by stepwise multiple linear regression. The latest version of ReconStep was revised for the course "Tree Rings, Climate, Natural Resources, and Human Interaction," to be held in late summer, 2026, in Artvin, Turkiye.
@@ -109,42 +100,40 @@ Try executing the chunk below by clicking the *Run* button within the chunk or b
 ```{r}
 rm(list=ls())
 
-pacman::p_load(here, rmarkdown, car, pracma, nortest, stringr, dplR, treeclim, resample, rjson, gplots)
-
 # Edit following line to match where you have stored user-written functions (UWFs)
-code_dir <- here()
+code_dir <- "/home/dave/GitWork/TRISH-R/"
 
 # The following five packages are essential to ReconStep.Rmd
-# library(rmarkdown)
-# library(car) 
-# library(pracma)
-# library(nortest)
-# library(stringr)
+library(rmarkdown)
+library(car) 
+library(pracma)
+library(nortest)
+library(stringr)
 
 # The next packages are not needed by ReconStep.Rmd but are needed for a 
 # couple chronology development scripts in the international course
-# library(dplR)
-# library(data.table)
-# library(treeclim)
+library(dplR)
+library(data.table)
+library(treeclim)
 
 # The next packages are not needed by ReconStep.Rmd, but are needed by
 # ReconAnalog.R. You may comment out the next 4 lines if you do not plan on using
 # ReconAnalog.R.
 # Edit following line (4 lines) if you have not loaded the 4 packages and are 
 # not planning to use ReconAnalog.R. "Editing" here simply means "commenting out."
-# library(resample)
-# library(rjson)
-# library(ggplot2)
-# library(gplots)
+library(resample)
+library(rjson)
+library(ggplot2)
+library(gplots)
 
-source(paste(code_dir,'/LagYear.R',sep=''))  # build lagged matrix of chrons
-source(paste(code_dir,'/PeriodCommon.R',sep=''))  # common period of overlap of chrons and predictand
-source(paste(code_dir,'/ForwStep1.R',sep='')) # forward stepwise regression
-source(paste(code_dir,'/mannken1.R',sep='')) # Mann-Kendall test for trend
-source(paste(code_dir,'/xyCI.R',sep='')) # utility function to compute x and y coordinates for patch for CI on recon plot
-source(paste(code_dir,'/ssValid.R',sep='')) # split-sample calib-valid
-source(paste(code_dir,'/NashSutt.R',sep='')) # independent verification check
-source(paste(code_dir,'/CrossValid1.R',sep='')) # cross-validation, called by ForwStep1
+source(paste(code_dir,'LagYear.R',sep=''))  # build lagged matrix of chrons
+source(paste(code_dir,'PeriodCommon.R',sep=''))  # common period of overlap of chrons and predictand
+source(paste(code_dir,'ForwStep1.R',sep='')) # forward stepwise regression
+source(paste(code_dir,'mannken1.R',sep='')) # Mann-Kendall test for trend
+source(paste(code_dir,'xyCI.R',sep='')) # utility function to compute x and y coordinates for patch for CI on recon plot
+source(paste(code_dir,'ssValid.R',sep='')) # split-sample calib-valid
+source(paste(code_dir,'NashSutt.R',sep='')) # independent verification check
+source(paste(code_dir,'CrossValid1.R',sep='')) # cross-validation, called by ForwStep1
 
 ```
 
@@ -187,9 +176,8 @@ The two alternative rules are available for stopping entry or predictors in step
 # A path, if included, must match the setup of your laptop. If no path is specified, the file
 # is assumed to be in the R project directory.
 # Edit following line (two lines) for path and filenames
-fileClimate <- paste(here(), '/PsepAugTahoe.txt', sep = "")
-#'/home/dave/GitWork/TRISH-R/PsepAugTahoe.txt'
-fileTree <- paste(here(), '/ChronsTahoe5.txt', sep = "")
+fileClimate <- '/home/dave/GitWork/TRISH-R/PsepAugTahoe.txt'
+fileTree <- '/home/dave/GitWork/TRISH-R/ChronsTahoe5.txt'
 
 # Specify desired calibration period of the reconstruction model. This period is also used for any 
 # correlation screening of the pool of potential predictors, and for cross-validation of the
