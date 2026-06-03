@@ -626,12 +626,12 @@ Z.ts <-ts(Z,start=yrv1[1])
 ts.plot(Z.ts,type='b',col=c('blue','red'),xlim=c(yrgo,yrv1[length(v1)]))
 abline(h=0)
 #--- Add a title and line at the mean
-title('Oberved (blue) and Reconstructed (red)')
+title('Observed (blue) and Reconstructed (red)')
 abline(h=mean(v1),col='grey')
 
 # Scatterplot of predicted on observed, with least-squares
 # fit straight lin as well as loess fit of locattion an spread
-scatterplot(v1,yh,xlab='Observed',ylab='Predicted')
+scatterplot(v1,yh, xlab='Observed',ylab='Predicted')
 title(sprintf('Adjusted R-squared = %5.2f',F$RsquaredAdj))
 ```
 
