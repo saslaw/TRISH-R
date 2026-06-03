@@ -6,7 +6,7 @@ output:
   html_notebook: default
   pdf_document: default
 # Edit following line to path where ReconStep.bib stored on your computer
-bibliography: /home/dave/GitWork/TRISH-R/ReconStep.bib
+bibliography: /Users/air/RND/Projects/DISC/TRISH-R/ReconStep.bib
 ---
 
 ReconStep.Rmd is an instructional [R Markdown](http://rmarkdown.rstudio.com) notebook ("Rmd" file) to illustrate the reconstruction of a climatic or hydrologic time series from a network of tree-ring site chronologies by stepwise multiple linear regression. The latest version of ReconStep was revised for the course "Tree Rings, Climate, Natural Resources, and Human Interaction," to be held in late summer, 2026, in Artvin, Turkiye.
@@ -101,7 +101,7 @@ Try executing the chunk below by clicking the *Run* button within the chunk or b
 rm(list=ls())
 
 # Edit following line to match where you have stored user-written functions (UWFs)
-code_dir <- "/home/dave/GitWork/TRISH-R/"
+code_dir <- "/Users/air/RND/Projects/DISC/TRISH-R/"
 
 # The following five packages are essential to ReconStep.Rmd
 library(rmarkdown)
@@ -176,8 +176,8 @@ The two alternative rules are available for stopping entry or predictors in step
 # A path, if included, must match the setup of your laptop. If no path is specified, the file
 # is assumed to be in the R project directory.
 # Edit following line (two lines) for path and filenames
-fileClimate <- '/home/dave/GitWork/TRISH-R/PsepAugTahoe.txt'
-fileTree <- '/home/dave/GitWork/TRISH-R/ChronsTahoe5.txt'
+fileClimate <- '/Users/air/RND/Projects/DISC/TRISH-R/PsepAugTahoe.txt'
+fileTree <- '/Users/air/RND/Projects/DISC/TRISH-R/ChronsTahoe5.txt'
 
 # Specify desired calibration period of the reconstruction model. This period is also used for any 
 # correlation screening of the pool of potential predictors, and for cross-validation of the
@@ -1015,7 +1015,7 @@ You can examine a variable by clicking its name (e.g., "yrgoc") in the console. 
 
 ```{r}
 # Edit following line so that path matches where you want the .RData output file
-save(yrgoc,yrspc,YhCI.ts, Z.ts,F,resSS,resPCA,file='/home/dave/GitWork/TRISH-R/RecOutput.RData')
+save(yrgoc,yrspc,YhCI.ts, Z.ts,F,resSS,resPCA,file='/Users/air/RND/Projects/DISC/TRISH-R/RecOutput.RData')
 ```
 
 ### References
