@@ -5,8 +5,7 @@ output:
     df_print: paged
   html_notebook: default
   pdf_document: default
-# Edit following line to path where ReconStep.bib stored on your computer
-bibliography: /Users/air/RND/Projects/DISC/TRISH-R/ReconStep.bib
+bibliography: ReconStep.bib
 ---
 
 ReconStep.Rmd is an instructional [R Markdown](http://rmarkdown.rstudio.com) notebook ("Rmd" file) to illustrate the reconstruction of a climatic or hydrologic time series from a network of tree-ring site chronologies by stepwise multiple linear regression. The latest version of ReconStep was revised for the course "Tree Rings, Climate, Natural Resources, and Human Interaction," to be held in late summer, 2026, in Artvin, Turkiye.
