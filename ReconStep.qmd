@@ -1,5 +1,7 @@
 ---
 title: "Climate reconstruction from tree rings by stepwise regression"
+execute:
+  echo: false
 output:
   html_document:
     df_print: paged
@@ -8,94 +10,8 @@ output:
 bibliography: ReconStep.bib
 ---
 
-ReconStep.Rmd is an instructional [R Markdown](http://rmarkdown.rstudio.com) notebook ("Rmd" file) to illustrate the reconstruction of a climatic or hydrologic time series from a network of tree-ring site chronologies by stepwise multiple linear regression. The latest version of ReconStep was revised for the course "Tree Rings, Climate, Natural Resources, and Human Interaction," to be held in late summer, 2026, in Artvin, Turkiye.
-
-The code in ReconStep.Rmd is an R script modified from an earlier script, StepwiseRecon.Rmd, used for the dendroclimatology module of the summer 2025 Dendrochronology Intensive Summer Course (DISC) at the University of Arizona.
-
-ReconStep.Rmd comprises "chunks" of code preceded by text explaining what the chunks do. "Rmd" stands for "R markdown." Rmd files can be run in RStudio using a dropdown menu ("Run" button) that lets you go chunk-by-chunk or run the entire Rmd at once. Results, which may be graphics, tables, or data listings, occur beneath the chunk that generated them.
-
-After running this script, you can right-click on any graphic and save it as a png for outside use. You have access to all computed statistics and time series in the workspace. Key statistics are also saved in an output file "RecOutput.Rdata" that you can re-load into R. Some of the contents of RecOutput.Rdata are:
-
--   F: list with results of regression modeling and cross-validation
--   yrgoc and yrspc: first and last year of calibration period
--   resSS: list with results of split-sample stability check of regression model
--   resIV: list with results of independent verification on a period help back from calibration/validation; relevant only if the specifications call for independent verification (see User settings).
--   resPCA: list with results of PCA run on matrix of screened lagged chronologies
--   YhCI.ts: matrix with reconstructed predictand, full length, with 50% confidence interval (CI)
--   Z.ts: time series of observed and reconstructed predictand for the calibration period
-
-### Preliminary steps
-
-Preliminary steps are to install R and Rstudio along with any needed R packages. The six R packages required are listed in the "library" commands of the next code chunk. Compatibility problems sometimes come up when using old versions of R or RStudio. My versions for testing this program are:
-
--   R version 4.6.0 (2026-04-24)
-
--   RStudio version 2026.04.0 Build 526
-
-You also need access to eight user-written functions (UWFs), which for this script are defined as functions written by David Meko. The "source" commands in the chunk below indicate the UWFs needed. Notice that these source commands include a path to a folder on Meko's laptop. You need to edit the lines to replace that path with a path to where you are storing the UWFs on your laptop. The simplest solution is to keep everything -- this script, the UWFs, and all data files, in a single R project folder. In that case no path is needed in the "source" commands for the UWFs.
-
-You also need to prepare your data files. Two files are required:
-
-1)  a tab-separated numeric-only two-column file (year and data) of the climate variable to be reconstructed\
-2)  a tab-separated numeric-only *m*-column file (year and chronologies) of the *m-1* chronologies you intend to pull your predictors from.
-
-Your input tree-ring file can contain a maximum of five chronologies. This limit was set to avoid overly cumbersome tables and other output in an instructional setting. See the sample input data files for an example of the data formats for the input.
-
-This Rmd file (ReconStep.Rmd), the UWFs it calls, sample input data, and running instructions are can be download from the GitHub repository
-
-<https://github.com/ltrr-arizona-edu/TRISH-R>
-
-1.  Go to the above URL
-
-2.  Click the green button labeled "Code" and click "Download zip" from the dropdown men.File "TRISH-R-main.zip" will be downloaded, and this zip file contains all files you will need
-
-3.  Unzip TRISH-R-main.zip such that all contained files are in the R project directory you created in an earlier step for working with ReconStep.Rmd. Beginning R users best store everything (e.g., UWFs, data files, output files) in the R project directory. Advanced users will likely tailor the paths in ReconStep.Rmd and keep some types of files in separate folders.
-
-The best way to start using this script is to first get it working on the sample data. If that works, you know that Rstudio and R have been properly set up and that the necessary R packages have been successfully installed.
-
-Then modify the script and try running it on your own data. You will need to edit the lines in the section "User settings" to match your data files and desired settings for the analysis.
-
-Besides lines in "User settings," The only other lines you need to modify are those mentioned above that deal with paths to UWFs.
-
-### Outline of reconstruction method
-
-A predictand, *y*, is regressed forward stepwise [@Draper&Smith1981] on screened, lagged tree-ring chronologies or their principal components. Stepwise regression on lagged predictors has a long history of use in dendroclimatology [@Stockton&Fritts1973; @Fritts1976; @Stockton&Meko1983; @Cook&Meko1999; @Meko&Stahle2011; @Meko&Biondi2024].
-
-Stepwise regression relies on automated selection of predictors, and so has a risk of overfitting the regression model [@Rencher&Pun1980]. This script has two safeguards against overfitting. First, you can restrict the size of the pool of potential predictors through a parameter in "User settings." Second, an option allows a cross-validation stopping rule [@Wilks2019] to terminate the entry of predictors in the stepwise regression whenever an additional predictor would lower the skill of cross-validation, as measured by the reduction-of-error statistic [@Fritts&Guiot1990].
-
-Cross-validation, following @Meko1997a, leaves out *m* observations in developing cross-validation residuals. If specification call for no lags allowed on predictors, $m=1$, and cross-validation is "leave-1-out" [@Michaelsen1987] .Otherwise, *m* is set to $m=1+4L_{max}$, where $L_{max}$ is the highest positive or negative lag allowed on the chronologies. This results in more than one observation being omitted for each iteration of cross-valiation modeling. For example if two negative and two positive lags are allowed, $L_{max}=2$ and $m=9$ observations are omitted in each cross-validation iteration.
-
-In leave-*m*-out cross-validation *m* is always an odd number. A separate model to predict *y* for each year of the calibration period is fit to a subset of years from which *m* years of the full calibration period centered on the target year have been omitted. The procedure guarantees that if the regression model has lagged predictors the cross-validation prediction for any year, *t*=*j*, does not depend on any of the same tree-ring values used to calibration the cross-validation model [@Meko1997a].
-
-Reconstruction steps are summarized below.
-
-1)  Starting point is a matrix of up to five tree-ring chronologies and an annual climate series
-
-2)  Optionally, expand chronology matrix by including lags on the chronologies
-
-3)  Screen the matrix of lagged chronologies to include only those variables most highly correlated (absolute correlation) with *y*.
-
-4)  Run a principal components analysis (PCA; @Mardia&Kent1979) on the matrix of screened lagged chronologies, and subsequently use either the screened chronologies or their principal component (PC) scores as the pool of potential predictors in stepwise regression. Assume that *X* is a time series matrix of this pool of variables, whether chronologies or PCs.
-
-5)  Regress *y* on variables in *X* forward stepwise to estimate the reconstruction model, using one of two alternative "stopping rules" dictating the final step of the model to be used for reconstruction:
-
-    1)  Maximum adjusted *R^2^* [@Draper&Smith1981]
-
-    2)  Maximum cross-validation RE [@Wilks2019]
-
-        Rule 2 is called a "cross-validation stopping rule." Usually, rule 2 will give the same model or a simpler model (fewer steps) than rule 1, but it is not constrained to do so. Cross-validation statistics are computed and saved whether or not you use maximum RE as the stopping rule. The model is cross-validated at each step and cross-validation statistics are saved regardless of which of the two stopping rules is used.
-
-6)  Apply the model to full-length matrix of available tree-ring data to generate reconstructed *y*, or $\hat{y}$.
-
-
-The reconstruction process also includes analysis of residuals and split-sample calibration/validation of the final regression model. Optionally, "independent verification" of the model is also implemented. Independent verification is checking the skill of prediction on observations (years) of data withheld from data screening or model calibration. More details are given in the text preceding each code chunk, as well as in the comments inside the chunks.
-
-### Libraries and functions
-
-The next chunk loads libraries and makes accessible, or "sources," any needed UWFs. You need to edit just one line in the next chunk: change the folder in the "code_dir" statement to match the folder where you have stored the UWFs on your laptop.
-
-Try executing the chunk below by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. You will get a couple warnings about objects being "masked" from a couple R packages; ignore those warnings.
-
+The original Rmd file (ReconStep.Rmd) with full explanations, the UWFs it calls, sample input data, and running instructions are can be download from the [GitHub repository](https://github.com/ltrr-arizona-edu/TRISH-R)
+ 
 ```{r}
 rm(list=ls())
 
@@ -138,9 +54,6 @@ source(paste(code_dir,'CrossValid1.R',sep='')) # cross-validation, called by For
 
 ```
 
-The next chunk reads Meko's full bib bibliography from his laptop and writes a file StepRecon.bib that includes references for only the citations in this Rmd file. The general user should comment out the last line of this chunk, which is
-"clean_bib('ReconStep.Rmd','/home/dave/Data/BibTex/BibliographyMeko.bib','ReconStepMeko.bib')"
-
 ```{r}
 clean_bib <- function(input_file, input_bib, output_bib){
   lines <- paste(readLines(input_file), collapse = "")
@@ -165,12 +78,6 @@ clean_bib <- function(input_file, input_bib, output_bib){
 #
 # clean_bib('ReconStep.Rmd','/home/dave/Data/BibTex/BibliographyMeko.bib','ReconStepMeko.bib')
 ```
-
-### User settings
-
-The next chunk allows you to tailor the reconstruction model. Settings include input filenames and various parameters that control the modeling. You can allow lags (up to 2 years) on the tree-ring chronologies used as predictor variables. To guard against overfitting the regression model, you can specify that the pool of potential predictors must be no larger than some specified fraction of the number of years in the calibration period. You can optionally specify transformation of the regression predictand, *y*. You can also optionally specify that variables in the pool of potential predictors be principal components of chronologies rather than chronologies themselves. Another setting allows you to specify a stopping rule for entry of variables in stepwise regression. Predictors for stepwise regression are entered in order of maximum reduction of variance of residuals.
-
-The two alternative rules are available for stopping entry or predictors in stepwise regression: 1) maximum adjusted *R^2^* of regression, and 2) maximum cross-validation RE. Please read the comments in the chunk below for additional guidance in editing the code.
 
 ```{r}
 # Specify paths and filenames for the files with the input climate and tree-ring time series.
@@ -259,16 +166,6 @@ par(ask=TRUE) # pause before each plot; no need to edit this line
 
 ################################################################################ 
 
-The next chunk reads input time series, optionally builds a lagged time series matrix of chronologies, optionally transforms *y*, checks whether the tree-ring matrix has enough columns to support a PCA, plots the time series *y*, and lists the coded names of tree-ring variables in the console.
-
-If you have allowed lagged predictors, the lagged time series matrix of the input tree-ring chronologies is organized with unlagged series in the leftmost columns, followed by negative lags and positive lags. The column names of this lagged matrix identify the original chronology and lag. For example, X5, X5N1, X5P2 are chronology #5 lagged 0, -1 and +2 years from the year of the predictand.
-
-The program stops with an error message if you called for reconstruction by PCA and the matrix of lagged chronologies has fewer than three columns.
-
-Optional transformations for *y* are log10 and square root.
-
-The time series plot of *y* is covers all years of the provided *y*. The list of coded names of tree-ring variables that appears in the console identifies columns of the tree-ring matrix before screening against *y*.
-
 ```{r}
 
 # READ INPUT TIME SERIES
@@ -324,13 +221,13 @@ if ((ncol(W)<3) && (PCA))
 stop("Error: You choose PCs for reconstruction by pool of potential predictors N<3)")
 
 # Time plot of predictand 
-tit1 <- paste('Time plot of predictand (',dunits,' units); line at mean')
-plot(yrv,v,type='b',xlab='Year',ylab='Predictand',main=tit1,col='blue')
+tit1 <- paste('Winter Precipitation')
+plot(yrv,v,type='b',xlab='Year',ylab='Precipitation (mm)',main=tit1,col='blue')
 abline(h=mean(v),col='gray')
 
 # Listing of variable codes in lagged chronology matrix
-sprintf('%s','Variables (cols) in the lagged chronology matrix W, before any correlation screening')
-sprintf('%s',colnames(W))
+# sprintf('%s','Variables (cols) in the lagged chronology matrix W, before any correlation screening')
+# sprintf('%s',colnames(W))
 rm(tit1)
 ```
 
@@ -339,12 +236,6 @@ rm(tit1)
 #### PART 2. Correlation screening of lagged chronology matrix
 
 ################################################################# 
-
-The next chunk of code screens the matrix of lagged chronologies to include only the *m* variables most highly correlated (absolute correlation) with *y*. The purpose of the screening is avoid artificial, or "chance," relationships that can result from an overly large pool of potential predictors [@Rencher&Pun1980]. Your setting ("User settings") for parameter *f* in the next chunk controls the screening. Let's take an example. With 5 chronologies, and allowing for lags of up to +-2 years, the pool of potential predictors has a total of 5x5=25 variables. If the length of the calibration period is 50 years, this means the the ratio of the size of the pool to the number of calibration observations is 25/50=0.5. Such a high ratio gives a high likelihood of chance relationships in stepwise regression. This risk can be reduced by keeping just those tree-ring variables most highly correlated with *y* in the pool (correlation screening). The setting for parameter *f* forces the pool of potential predictors to include at most  *fN* variables; those variables are selected in order of decreasing absolute correlation with *y.* The default is *f=0.1*. You can change this to make the screening more or less stringent. The default follows the "10:1" rule of minimum recommended ratio of number of calibration observations to number of potential predictors in the pool for stepwise regression [@Chowdhury&Turin2020].
-
-The next chunk also creates a list of the ids of the screened tree-ring variables. These or their principal components will comprise the pool of potential predictor for the reconstruction model. A bar plot of the correlations is also displayed. The longest bars in the chart correspond to the predictors passing screening. The coded names of those predictors are listed in the console. The correlations are computed for the calibration period that you specified in "User settings," or otherwise for years that all series overlap the predictand (default calibration period).
-
-The "critical" absolute correlation as defined here is not necessarily statistically significant and indeed is not tested for statistical significance. The variables in the tree-ring matrix -- possibly including lagged variables --- are ranked according to absolute correlation with the predicand. The "nkeep" variables most highly correlated (absolute) with the predictand are retained as the pool of potential predictors. So, here the "critical" correlation is defined as the threshold absolute correlation that yields "nkeep" tree-ring variables in the pool of potential predictors. By lowering input parameter *f* you effectively require a stronger correlation for the variable to be included in the pool of potential predictors. 
 
 ```{r}
 
@@ -486,8 +377,6 @@ sprintf('%s',colnames(W2))
 
 #### PART 3. Optionally extend calibration period
 
-The next chunk optionally revises the end year for calibration of the reconstruction model if the model specifications have called for lagged predictors and correlation screening indicates that positively lagged tree-ring data will not be in predictor pool. For example, if you specified that the regression should allow lags +1 and +2 years relative to *y* as predictors and screening shows that positively lagged chronologies are not significantly correlated with *y*, the calibration period can be extended two years on the recent end. Such extension is done only if you have specified that yrspc is to be determined automatically from the overlap of *y* and tree rings (i.e., yrsp=NA).
-
 ################################################################# 
 
 ```{r}
@@ -522,10 +411,6 @@ if ((nrow(Wtemp) != nrow(W2)) && Lstopc ) {
 ################################################################################ 
 
 #### PART 4. PCA transformation of chronologies
-
-The next chunk does a principal component analysis (PCA) of the screened, lagged tree-ring chronologies. Depending on the specifications, the pool of potential predictors for the reconstruction model will be the chronologies themselves or their PCs. A PCA is run and PC time series are generated even if you are using the original chronologies as predictors in the reconstruction model. The PCA is done on the full common period of the screened lagged chronologies. Two plots are produced: a scree plot of eigenvalues, and a time plot of the scores of the first component (PC1). Additional data from the PCA is stored in the output list resPCA.
-
-PCA is not attempted if the matrix of screened, lagged chronologies has fewer than three columns. If PCA is not attempted, the output variable resPCA is set equal to the string "Too few tree-ring variables to justify PCA."
 
 ############################################################################### 
 
@@ -574,14 +459,6 @@ if (dim(W3)[2]>2){
 
 #### PART 5. Regression modeling
 
-The next chunk does stepwise regression modeling of *y* on either the screened lagged chronologies or their PCs. The tree-ring variable most highly correlated with *y* enters first. Subsequent predictors enter forward stepwise in order of decreasing percentage of residual variance (from previous step) explained. At each step adjusted *R^2^* is recorded and the model is cross-validated. All variables in the pool of potential predictors eventually enter and statistics are examined to determine a final step. This step follows the stopping rule you have specified (see User settings).
-
-The following output appears in the console:
-
-1)  Table with model coefficients
-2)  Time series plots of observed and reconstructed *y*
-3)  Scatterplot of reconstructed *y* against observed *y*, with adjusted *R*^2^ annotated
-
 ################################################################################ 
 
 ```{r}
@@ -623,7 +500,7 @@ yh <- M$fitted.values
 yrgo<-yrv1[1]
 Z<-cbind(v1,yh)
 Z.ts <-ts(Z,start=yrv1[1])
-ts.plot(Z.ts,type='b',col=c('blue','red'),xlim=c(yrgo,yrv1[length(v1)]))
+ts.plot(Z.ts,type='b',col=c('blue','red'),xlim=c(yrgo,yrv1[length(v1)]), xlab="Year", ylab="Precipitation (mm)")
 abline(h=0)
 #--- Add a title and line at the mean
 title('Observed (blue) and Reconstructed (red)')
@@ -638,8 +515,6 @@ title(sprintf('Adjusted R-squared = %5.2f',F$RsquaredAdj))
 ############################################################################### 
 
 #### PART 6. Reconstruction
-
-The next chunk multiplies the estimated regression coefficients times the matrix of screened lagged tree-ring chronologies (or their PCs) to generate the reconstruction, $\hat{y}$. This chunk also uses R's built-in "lm" function to recalibrate the final model and compute additional calibration statistics, and checks that the "fitted values" returned by "lm" are the same as the calibration-period segment of $\hat{y}$. These data are listed in two columns in the console so that you can verify that they are the same.
 
 ################################################################################ 
 
@@ -711,18 +586,6 @@ print(QC1)
 
 #### PART 7. Independent verification
 
-The next chunk optionally verifies the reconstruction model on a segment of earlier observations withheld from calibration and not used for preliminary screening of tree rings against *y* (e.g., @Meko&Biondi2024). Independent verification (IV) is optional in ReconStep, and is done only if you have specified years for either yrgoi or yrspi (see User settings), If yrgoi and yrspi are set to NA, IV is skipped. IV is rarely done in dendroclimatology because the period of overlap of climate data and tree-ring data is usually so short that people want to take advantage of all of the available data for calibration and cross-validation.
-
-Skill of IV is measured in StepRecon by the Nash-Sutcliffe efficiency (NSE). The NSE, computed as 1 minus the ratio of the variance of errors to variance of observed *y*, is widely used in hydrology [@Nash&Sutcliffe1970] and is equivalent to the coefficient of efficiency (CE), a dendroclimatic validation statistic for which the "null" prediction is the validation-period mean of *y* [@Cook&Kairiukstis1990].
-
-If you have called for independent verification, the next chunk returns a time series plot and statistics. The plot has the following features:
-
-1)  Time series of observed and reconstructed *y* for the IV period.
-
-2)  Horizontal line at the observed mean for the IV period. This line is the null prediction whose errors are used to compute the NSE.
-
-3)  Horizontal line at the observed mean for the calibration period of the regression model. This line is the null prediction whose errors are used to compute the reduction-of-error (RE) statistic. Besides the NSE and RE, the Pearson correlation of predicted with observed *y* for the IV period is also computed. These statistics are annotated above the plot. Those and other statistics are stored in the list ResIV, available in the workspace and saved in the output file "RecOutput.Rdata".
-
 ```{r}
 
 LIV  <- is.na(yrgoi) | is.na(yrspi)
@@ -755,20 +618,6 @@ ResIV <- NashSutt(yIV, yhIV, yrIV, ycMean, kplotIV, outputDir,gFileType)
 ################################################################################ 
 
 #### PART 8. Analysis of residuals
-
-The next chunk does an analysis of residuals, which is a check for violation of regression assumptions. The residuals in regression are assumed to be normally distributed, non-autocorrelated, and homoscedastic [@Wilks2019].
-
-The next chunk also tests the residuals for trend, which is a particular aspect of autocorrelation [@Chatfield2004]. A time series with positive or negative trend will generally have a positive autocorrelation out to some number of lags that depends on the length of the time series and the form of the trend (e.g. linear vs cyclic). It is important to identify trend in the residuals of regression models for reconstruction of climate from tree rings because the trend could indicate a flaw in the model. For example, consider a reconstruction model for annual precipitation, *y*, from tree rings and residuals with a positive trend. Because the residuals are computed as observed minus reconstructed *y*, the positive trend in residuals could indicate a downward trend in tree-growth driven by a climate variable (e.g., air temperature) other than *y*. The most likely suspect in this case is increased water stress in trees over time due to increasing evaporative stress related to warming. Another plausible source of trend in residuals here is improper removal of the age trend in converting measured ring widths to indices. The various tests applied in analysis of residuals here are outlined below. For all tests, the respective null hypothesis is rejected with 95% confidence if the *p* value of the statistic is lower than 0.05.
-
--   **Normality** is tested with the Lilliefors test [@Conover1999], whose p-value is annotated on a plotted histogram. The null hypothesis is that the residuals are a sample from a normal distribution.
-
--   **Heteroscedasticity** is tested with Breusch-Pagan statistic [@Breusch&Pagan1979], which is annotated on a scatterplot of residuals against predicted *y*. Heteroscedasticity is defined as residual variance that is not constant over the range of predicted *y*. The opposite of heteroscedasticity is homoscedasticity, which is constancy of variance of residuals. Regression residuals are assumed to be homoscedastic and that is the null hypothesis for the Breusch-Pagan test.\
-    \
-    A common sign of heteroskedasticity in streamflow reconstructions is a fanning-out pattern in the scatter plot of residuals against predicted *y*. In streamflow reconstruction, this pattern indicates that error variance increases toward higher predicted flows. The problem can sometimes be corrected by log10 [@Meko&Therrell2001] or square-root transformation [@Meko&Touchan2020]of the flows before using them as the regression predictand. A trade-off of transformation is that the reconstruction is then in transformed units, and the accuracy statistics apply to the reconstruction in the transformed units.
-
--   **Autocorrelation** is tested with the Durbin-Watson (DW) statistic [@Wilks2019]. The null hypothesis is that the population lag-1 autocorrelation of residuals is zero. The *p*-value of the DW statistic is annotated on a plot of the autocorrelation function of residuals.
-
--   **Trend** is tested with the Mann-Kendall trend statistic [@Wilks2019], which addresses monotonic trend, whether linear or not. The null hypothesis is that the residuals have no trend. The Mann-Kendall test statistic and its *p*-value are annotated on a time series plot of residuals. A non-parametric trend line [@Haan2002] is added to the plot to help in the assessment. The significance of the Mann Kendall test is adjusted, if necessary, for any significant autocorrelation over and above that due to trend [@Wilks2019]. An annotated variance inflation factor ("VIF") indicates if any such adjustment was applied. If VIF=1, no adjustment was needed. If VIF\>1, an adjustment was applied, and the size of VIF is related to the amplification of the variance of the test statistic due to autocorrelation.
 
 ################################################################################ 
 
@@ -837,16 +686,6 @@ hLillie <- lillie.test(M$residuals); # Lilliefors test for normality
 ################################################################################ 
 
 #### PART 9. Split-sample analysis to check stability of reconstruction model
-
-The next chunk checks the temporal stability of the model estimated on the full calibration period by split-sample calibration/validation [@Snee1977]. The full calibration period is split in half (earlier half longer if total length odd). The model is then re-calibrated on each half of the full period and validated on the other half. Validation skill is measured with "skill" statistics.
-
-The split-sample exercise applies linear regression, but in ReconStep there is no automatic selection of predictors in calibrating the split-sample models. Those predictors are the same variables selected as predictors for the full-period reconstruction model.
-
-Consider the first half as period A and the second half as period B. The model is first fit to A and validated on B. The model is then fit to B and validated on A. Validation consists of computing the RE statistic on residuals for the validation period. An RE\>0 indicates the model performs better, or has a lower sum of squares of errors, than a null model in which the prediction for each year is the calibration-period observed mean of *y*. In that sense, RE\>0 indicates "some" skill.
-
-Split-sample calibration/validation as described here is not strictly "independent" validation, because the full period of overlap of *y* with tree-ring data has been used to pick the predictor variables for the reconstruction model.
-
-A figure with time series plots of observed *y* and split-sample predictions of *y* is produced in the console. A horizontal line, called the "null prediction is plotted to mark the no-skill prediction for each validation period. The reduction of error (RE; @Fritts&Guiot1990) statistic for validation on the early and late halves is annotated on the figure. If the reconstruction for some observation is closer than the null prediction to the observed *y*, that observation contributes positively to RE; otherwise, the contribution is negative. Large departures have an amplified effect on RE because RE is computed from the sum-of-squares of differences of observed and predicted. RE\>0 is interpreted as a model with"some" skill.
 
 ################################################################################ 
 
@@ -929,8 +768,6 @@ rm(whatsUp)
 
 #### PART 10. Confidence interval for reconstruction
 
-The next chunk plots the annual reconstruction of *y* with its 50% confidence interval (CI). The CI is computed as $\hat{y} \pm 0.6745\ \rm{RMSE_{cv}}$, where RMSE~cv~ is the root-mean-square error from cross-validation, and the errors are assumed to be normally distributed.
-
 ############################################################################### 
 
 ```{r}
@@ -1000,18 +837,6 @@ polygon(xP,yP, col=rgb(1.00,0,0,0.1),border=NA) # mustard
 
 #### PART 11. Save reconstruction and statistics
 
-The next chunk saves time series and statistics output in the file "RecOutput.Rdata." The file includes the following:
-
-1)  YhCI.ts: time series of reconstructed *y* with its 50% CI
-2)  Z.ts: time series of observed and reconstructed *y* for the calibration period
-3)  yrgoc, yrspc: first and last years of the calibration period
-4)  F: a list with statistics and data on the modeling
-5)  resSS: a list with results of split-sample calibration/validation
-6)  resPCA: a list with results of principal component analysis of screened lagged tree-ring chronologies
-
-To recover the stored data, click "Session --Clear Workspace" from the top menu in RStudio. Then use your file browser to find "RecOutput.Rdata" and double-click on it. Variables, including 1-6 above, will appear in the workspace.
-
-You can examine a variable by clicking its name (e.g., "yrgoc") in the console. Lists have multiple variables. To see contents of a list,type the list name followed by a dollar sign in the console. For example, for contents of F, type F\$ at the R console. You can then click on the desired variable in the dropdown menu. The stored variables have been given intuitively descriptive names and are not described further here.
 
 ############################################################################### 
 

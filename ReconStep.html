@@ -23,61 +23,7 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
+</style>
 
 
 <script src="ReconStep_files/libs/clipboard/clipboard.min.js"></script>
@@ -92,35 +38,6 @@ div.csl-indent {
 <link href="ReconStep_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="ReconStep_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 </head>
 
@@ -149,221 +66,7 @@ window.Quarto = {
 </header>
 
 
-<p>ReconStep.Rmd is an instructional <a href="http://rmarkdown.rstudio.com">R Markdown</a> notebook (“Rmd” file) to illustrate the reconstruction of a climatic or hydrologic time series from a network of tree-ring site chronologies by stepwise multiple linear regression. The latest version of ReconStep was revised for the course “Tree Rings, Climate, Natural Resources, and Human Interaction,” to be held in late summer, 2026, in Artvin, Turkiye.</p>
-<p>The code in ReconStep.Rmd is an R script modified from an earlier script, StepwiseRecon.Rmd, used for the dendroclimatology module of the summer 2025 Dendrochronology Intensive Summer Course (DISC) at the University of Arizona.</p>
-<p>ReconStep.Rmd comprises “chunks” of code preceded by text explaining what the chunks do. “Rmd” stands for “R markdown.” Rmd files can be run in RStudio using a dropdown menu (“Run” button) that lets you go chunk-by-chunk or run the entire Rmd at once. Results, which may be graphics, tables, or data listings, occur beneath the chunk that generated them.</p>
-<p>After running this script, you can right-click on any graphic and save it as a png for outside use. You have access to all computed statistics and time series in the workspace. Key statistics are also saved in an output file “RecOutput.Rdata” that you can re-load into R. Some of the contents of RecOutput.Rdata are:</p>
-<ul>
-<li>F: list with results of regression modeling and cross-validation</li>
-<li>yrgoc and yrspc: first and last year of calibration period</li>
-<li>resSS: list with results of split-sample stability check of regression model</li>
-<li>resIV: list with results of independent verification on a period help back from calibration/validation; relevant only if the specifications call for independent verification (see User settings).</li>
-<li>resPCA: list with results of PCA run on matrix of screened lagged chronologies</li>
-<li>YhCI.ts: matrix with reconstructed predictand, full length, with 50% confidence interval (CI)</li>
-<li>Z.ts: time series of observed and reconstructed predictand for the calibration period</li>
-</ul>
-<section id="preliminary-steps" class="level3">
-<h3 class="anchored" data-anchor-id="preliminary-steps">Preliminary steps</h3>
-<p>Preliminary steps are to install R and Rstudio along with any needed R packages. The six R packages required are listed in the “library” commands of the next code chunk. Compatibility problems sometimes come up when using old versions of R or RStudio. My versions for testing this program are:</p>
-<ul>
-<li><p>R version 4.6.0 (2026-04-24)</p></li>
-<li><p>RStudio version 2026.04.0 Build 526</p></li>
-</ul>
-<p>You also need access to eight user-written functions (UWFs), which for this script are defined as functions written by David Meko. The “source” commands in the chunk below indicate the UWFs needed. Notice that these source commands include a path to a folder on Meko’s laptop. You need to edit the lines to replace that path with a path to where you are storing the UWFs on your laptop. The simplest solution is to keep everything – this script, the UWFs, and all data files, in a single R project folder. In that case no path is needed in the “source” commands for the UWFs.</p>
-<p>You also need to prepare your data files. Two files are required:</p>
-<ol type="1">
-<li>a tab-separated numeric-only two-column file (year and data) of the climate variable to be reconstructed<br>
-</li>
-<li>a tab-separated numeric-only <em>m</em>-column file (year and chronologies) of the <em>m-1</em> chronologies you intend to pull your predictors from.</li>
-</ol>
-<p>Your input tree-ring file can contain a maximum of five chronologies. This limit was set to avoid overly cumbersome tables and other output in an instructional setting. See the sample input data files for an example of the data formats for the input.</p>
-<p>This Rmd file (ReconStep.Rmd), the UWFs it calls, sample input data, and running instructions are can be download from the GitHub repository</p>
-<p><a href="https://github.com/ltrr-arizona-edu/TRISH-R" class="uri">https://github.com/ltrr-arizona-edu/TRISH-R</a></p>
-<ol type="1">
-<li><p>Go to the above URL</p></li>
-<li><p>Click the green button labeled “Code” and click “Download zip” from the dropdown men.File “TRISH-R-main.zip” will be downloaded, and this zip file contains all files you will need</p></li>
-<li><p>Unzip TRISH-R-main.zip such that all contained files are in the R project directory you created in an earlier step for working with ReconStep.Rmd. Beginning R users best store everything (e.g., UWFs, data files, output files) in the R project directory. Advanced users will likely tailor the paths in ReconStep.Rmd and keep some types of files in separate folders.</p></li>
-</ol>
-<p>The best way to start using this script is to first get it working on the sample data. If that works, you know that Rstudio and R have been properly set up and that the necessary R packages have been successfully installed.</p>
-<p>Then modify the script and try running it on your own data. You will need to edit the lines in the section “User settings” to match your data files and desired settings for the analysis.</p>
-<p>Besides lines in “User settings,” The only other lines you need to modify are those mentioned above that deal with paths to UWFs.</p>
-</section>
-<section id="outline-of-reconstruction-method" class="level3">
-<h3 class="anchored" data-anchor-id="outline-of-reconstruction-method">Outline of reconstruction method</h3>
-<p>A predictand, <em>y</em>, is regressed forward stepwise <span class="citation" data-cites="Draper&amp;Smith1981">(<a href="#ref-Draper&amp;Smith1981" role="doc-biblioref">Draper and Smith 1981</a>)</span> on screened, lagged tree-ring chronologies or their principal components. Stepwise regression on lagged predictors has a long history of use in dendroclimatology <span class="citation" data-cites="Stockton&amp;Fritts1973 Fritts1976 Stockton&amp;Meko1983 Cook&amp;Meko1999 Meko&amp;Stahle2011 Meko&amp;Biondi2024">(<a href="#ref-Stockton&amp;Fritts1973" role="doc-biblioref">Stockton and Fritts 1973</a>; <a href="#ref-Fritts1976" role="doc-biblioref">Fritts 1976</a>; <a href="#ref-Stockton&amp;Meko1983" role="doc-biblioref">Stockton and Meko 1983</a>; <a href="#ref-Cook&amp;Meko1999" role="doc-biblioref">Cook et al. 1999</a>; <a href="#ref-Meko&amp;Stahle2011" role="doc-biblioref">Meko et al. 2011</a>; <a href="#ref-Meko&amp;Biondi2024" role="doc-biblioref">Meko et al. 2024</a>)</span>.</p>
-<p>Stepwise regression relies on automated selection of predictors, and so has a risk of overfitting the regression model <span class="citation" data-cites="Rencher&amp;Pun1980">(<a href="#ref-Rencher&amp;Pun1980" role="doc-biblioref">Rencher and Pun 1980</a>)</span>. This script has two safeguards against overfitting. First, you can restrict the size of the pool of potential predictors through a parameter in “User settings.” Second, an option allows a cross-validation stopping rule <span class="citation" data-cites="Wilks2019">(<a href="#ref-Wilks2019" role="doc-biblioref">Wilks 2019</a>)</span> to terminate the entry of predictors in the stepwise regression whenever an additional predictor would lower the skill of cross-validation, as measured by the reduction-of-error statistic <span class="citation" data-cites="Fritts&amp;Guiot1990">(<a href="#ref-Fritts&amp;Guiot1990" role="doc-biblioref">Fritts et al. 1990</a>)</span>.</p>
-<p>Cross-validation, following <span class="citation" data-cites="Meko1997a">Meko (<a href="#ref-Meko1997a" role="doc-biblioref">1997</a>)</span>, leaves out <em>m</em> observations in developing cross-validation residuals. If specification call for no lags allowed on predictors, <span class="math inline">\(m=1\)</span>, and cross-validation is “leave-1-out” <span class="citation" data-cites="Michaelsen1987">(<a href="#ref-Michaelsen1987" role="doc-biblioref">Michaelsen 1987</a>)</span> .Otherwise, <em>m</em> is set to <span class="math inline">\(m=1+4L_{max}\)</span>, where <span class="math inline">\(L_{max}\)</span> is the highest positive or negative lag allowed on the chronologies. This results in more than one observation being omitted for each iteration of cross-valiation modeling. For example if two negative and two positive lags are allowed, <span class="math inline">\(L_{max}=2\)</span> and <span class="math inline">\(m=9\)</span> observations are omitted in each cross-validation iteration.</p>
-<p>In leave-<em>m</em>-out cross-validation <em>m</em> is always an odd number. A separate model to predict <em>y</em> for each year of the calibration period is fit to a subset of years from which <em>m</em> years of the full calibration period centered on the target year have been omitted. The procedure guarantees that if the regression model has lagged predictors the cross-validation prediction for any year, <em>t</em>=<em>j</em>, does not depend on any of the same tree-ring values used to calibration the cross-validation model <span class="citation" data-cites="Meko1997a">(<a href="#ref-Meko1997a" role="doc-biblioref">Meko 1997</a>)</span>.</p>
-<p>Reconstruction steps are summarized below.</p>
-<ol type="1">
-<li><p>Starting point is a matrix of up to five tree-ring chronologies and an annual climate series</p></li>
-<li><p>Optionally, expand chronology matrix by including lags on the chronologies</p></li>
-<li><p>Screen the matrix of lagged chronologies to include only those variables most highly correlated (absolute correlation) with <em>y</em>.</p></li>
-<li><p>Run a principal components analysis (PCA; <span class="citation" data-cites="Mardia&amp;Kent1979">Mardia et al. (<a href="#ref-Mardia&amp;Kent1979" role="doc-biblioref">1979</a>)</span>) on the matrix of screened lagged chronologies, and subsequently use either the screened chronologies or their principal component (PC) scores as the pool of potential predictors in stepwise regression. Assume that <em>X</em> is a time series matrix of this pool of variables, whether chronologies or PCs.</p></li>
-<li><p>Regress <em>y</em> on variables in <em>X</em> forward stepwise to estimate the reconstruction model, using one of two alternative “stopping rules” dictating the final step of the model to be used for reconstruction:</p>
-<ol type="1">
-<li><p>Maximum adjusted <em>R<sup>2</sup></em> <span class="citation" data-cites="Draper&amp;Smith1981">(<a href="#ref-Draper&amp;Smith1981" role="doc-biblioref">Draper and Smith 1981</a>)</span></p></li>
-<li><p>Maximum cross-validation RE <span class="citation" data-cites="Wilks2019">(<a href="#ref-Wilks2019" role="doc-biblioref">Wilks 2019</a>)</span></p>
-<p>Rule 2 is called a “cross-validation stopping rule.” Usually, rule 2 will give the same model or a simpler model (fewer steps) than rule 1, but it is not constrained to do so. Cross-validation statistics are computed and saved whether or not you use maximum RE as the stopping rule. The model is cross-validated at each step and cross-validation statistics are saved regardless of which of the two stopping rules is used.</p></li>
-</ol></li>
-<li><p>Apply the model to full-length matrix of available tree-ring data to generate reconstructed <em>y</em>, or <span class="math inline">\(\hat{y}\)</span>.</p></li>
-</ol>
-<p>The reconstruction process also includes analysis of residuals and split-sample calibration/validation of the final regression model. Optionally, “independent verification” of the model is also implemented. Independent verification is checking the skill of prediction on observations (years) of data withheld from data screening or model calibration. More details are given in the text preceding each code chunk, as well as in the comments inside the chunks.</p>
-</section>
-<section id="libraries-and-functions" class="level3">
-<h3 class="anchored" data-anchor-id="libraries-and-functions">Libraries and functions</h3>
-<p>The next chunk loads libraries and makes accessible, or “sources,” any needed UWFs. You need to edit just one line in the next chunk: change the folder in the “code_dir” statement to match the folder where you have stored the UWFs on your laptop.</p>
-<p>Try executing the chunk below by clicking the <em>Run</em> button within the chunk or by placing your cursor inside it and pressing <em>Ctrl+Shift+Enter</em>. You will get a couple warnings about objects being “masked” from a couple R packages; ignore those warnings.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list=</span><span class="fu">ls</span>())</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(here, rmarkdown, car, pracma, nortest, stringr, dplR, treeclim, resample, rjson, gplots)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Edit following line to match where you have stored user-written functions (UWFs)</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>code_dir <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="fu">here</span>(), <span class="st">"/"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># The following five packages are essential to ReconStep.Rmd</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># library(rmarkdown)</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># library(car) </span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># library(pracma)</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># library(nortest)</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># library(stringr)</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># The next packages are not needed by ReconStep.Rmd but are needed for a </span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># couple chronology development scripts in the international course</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># library(dplR)</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># library(data.table)</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># library(treeclim)</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># The next packages are not needed by ReconStep.Rmd, but are needed by</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># ReconAnalog.R. You may comment out the next 4 lines if you do not plan on using</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># ReconAnalog.R.</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Edit following line (4 lines) if you have not loaded the 4 packages and are </span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># not planning to use ReconAnalog.R. "Editing" here simply means "commenting out."</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># library(resample)</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># library(rjson)</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># library(ggplot2)</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># library(gplots)</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">paste</span>(code_dir,<span class="st">'LagYear.R'</span>,<span class="at">sep=</span><span class="st">''</span>))  <span class="co"># build lagged matrix of chrons</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">paste</span>(code_dir,<span class="st">'PeriodCommon.R'</span>,<span class="at">sep=</span><span class="st">''</span>))  <span class="co"># common period of overlap of chrons and predictand</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">paste</span>(code_dir,<span class="st">'ForwStep1.R'</span>,<span class="at">sep=</span><span class="st">''</span>)) <span class="co"># forward stepwise regression</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">paste</span>(code_dir,<span class="st">'mannken1.R'</span>,<span class="at">sep=</span><span class="st">''</span>)) <span class="co"># Mann-Kendall test for trend</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">paste</span>(code_dir,<span class="st">'xyCI.R'</span>,<span class="at">sep=</span><span class="st">''</span>)) <span class="co"># utility function to compute x and y coordinates for patch for CI on recon plot</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">paste</span>(code_dir,<span class="st">'ssValid.R'</span>,<span class="at">sep=</span><span class="st">''</span>)) <span class="co"># split-sample calib-valid</span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">paste</span>(code_dir,<span class="st">'NashSutt.R'</span>,<span class="at">sep=</span><span class="st">''</span>)) <span class="co"># independent verification check</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">paste</span>(code_dir,<span class="st">'CrossValid1.R'</span>,<span class="at">sep=</span><span class="st">''</span>)) <span class="co"># cross-validation, called by ForwStep1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>The next chunk reads Meko’s full bib bibliography from his laptop and writes a file StepRecon.bib that includes references for only the citations in this Rmd file. The general user should comment out the last line of this chunk, which is “clean_bib(‘ReconStep.Rmd’,‘/home/dave/Data/BibTex/BibliographyMeko.bib’,‘ReconStepMeko.bib’)”</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>clean_bib <span class="ot">&lt;-</span> <span class="cf">function</span>(input_file, input_bib, output_bib){</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  lines <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="fu">readLines</span>(input_file), <span class="at">collapse =</span> <span class="st">""</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  entries <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">str_match_all</span>(lines, <span class="st">"@([a-zA-Z0-9]+)[,</span><span class="sc">\\</span><span class="st">. </span><span class="sc">\\</span><span class="st">?</span><span class="sc">\\</span><span class="st">!</span><span class="sc">\\</span><span class="st">]</span><span class="sc">\\</span><span class="st">;]"</span>)[[<span class="dv">1</span>]][, <span class="dv">2</span>])</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  bib <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="fu">readLines</span>(input_bib), <span class="at">collapse =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  bib <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">strsplit</span>(bib, <span class="st">"</span><span class="sc">\n</span><span class="st">@"</span>))</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> <span class="fu">sapply</span>(entries, grep, bib, <span class="at">value =</span> T)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">"@"</span>, output, <span class="at">sep =</span> <span class="st">""</span>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">writeLines</span>(<span class="fu">unlist</span>(output), output_bib)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Call function to generate bib file for this project from my bib file. User</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># can ignore this code. Be aware that clear_bib does not work properly with</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># bibtex files, like mine, that have key fields with more than one name, such</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># as "Meko&amp;Stockton1983." So, I have to build ReconStep.bib MANUALLY pasting </span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># from /media/dave/Red128/BibliographyMeko.bib to ReconStep.bib. To avoid catastropic </span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># overwriting of ReconStep.bib, I name the NEVER-TO-BE-CREATED output file below</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 'ReconStepMeko.bib' instead of ReconStep.bib.</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co"># clean_bib('ReconStep.Rmd','/home/dave/Data/BibTex/BibliographyMeko.bib','ReconStepMeko.bib')</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</section>
-<section id="user-settings" class="level3">
-<h3 class="anchored" data-anchor-id="user-settings">User settings</h3>
-<p>The next chunk allows you to tailor the reconstruction model. Settings include input filenames and various parameters that control the modeling. You can allow lags (up to 2 years) on the tree-ring chronologies used as predictor variables. To guard against overfitting the regression model, you can specify that the pool of potential predictors must be no larger than some specified fraction of the number of years in the calibration period. You can optionally specify transformation of the regression predictand, <em>y</em>. You can also optionally specify that variables in the pool of potential predictors be principal components of chronologies rather than chronologies themselves. Another setting allows you to specify a stopping rule for entry of variables in stepwise regression. Predictors for stepwise regression are entered in order of maximum reduction of variance of residuals.</p>
-<p>The two alternative rules are available for stopping entry or predictors in stepwise regression: 1) maximum adjusted <em>R<sup>2</sup></em> of regression, and 2) maximum cross-validation RE. Please read the comments in the chunk below for additional guidance in editing the code.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify paths and filenames for the files with the input climate and tree-ring time series.</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># A path, if included, must match the setup of your laptop. If no path is specified, the file</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># is assumed to be in the R project directory.</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Edit following line (two lines) for path and filenames</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>fileClimate <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="fu">here</span>(), <span class="st">'/KGUPrecipWinter.txt'</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#'/home/dave/GitWork/TRISH-R/PsepAugTahoe.txt'</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>fileTree <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="fu">here</span>(), <span class="st">'/KGUChron.txt'</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify desired calibration period of the reconstruction model. This period is also used for any </span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># correlation screening of the pool of potential predictors, and for cross-validation of the</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># reconstruction model. The specified first and last years apply to years of the y. Setting</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># yrgoc and yrspc to "NA" means the calibration should be chosen automatically from the </span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># maximum overlap of y (climate) and the tree-ring series. If you mistakenly specify an</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># impossible calibration period, the settings will be ignored and the period will be </span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># chosen automatically.</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>yrgoc<span class="ot">&lt;-</span><span class="cn">NA</span>  <span class="co"># start of calib period (if data and lags allow)</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>yrspc<span class="ot">&lt;-</span> <span class="cn">NA</span>  <span class="co"># end of calib period (...)</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the period for "independent" verification. This must not overlap any of the years in</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># yrgoc-yrspc. Independent verification checks how well the model predicts the predictand</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co"># for a period NOT USED IN ANY WAY to screen or tune the predictand to predictors. If both</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># yrgoi and yrspi are set to NA, no independent verification is attempted. This is an appropriate</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co"># setting when there is no additional overlap of tree rings and the predictand beyond what</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co"># is used for calibration/validation.</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>yrgoi <span class="ot">&lt;-</span> <span class="cn">NA</span> <span class="co"># start year of independent verification</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>yrspi <span class="ot">&lt;-</span> <span class="cn">NA</span> <span class="co"># end year of independent verification</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify the maximum number of negative and positive lags on the predictors allowed </span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co"># in the predictor pool. The final model may not include such lags, depending on the </span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co"># results of stepwise regression. The  maximum allowable lag is 2 years. In other </span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co"># words, the only acceptable settings for nNeg and nPos are 0, 1, or 2.</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>nNeg<span class="ot">=</span><span class="dv">1</span>     <span class="co"># maximum negative lag allowed on chronologies</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>nPos<span class="ot">=</span><span class="dv">1</span>     <span class="co"># maximum positive lag allowed on chronologies</span></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify a decimal fraction that caps the size of the pool of potential predictors</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co"># as some fraction of number of years in the calibration period. This is a safeguard</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co"># against model overfitting. Regression models that select predictors automatically </span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co"># can result in chance relationships if the pool of potential predictors is some large</span></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="co"># fraction of the number of observations (years) available for calibrating the model.</span></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Various rules exist on the allowable ratio of number of potential predictors to </span></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="co"># number of observations for calibration. Ideally, there should be at least 5 to 10 </span></span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="co"># times as many years in the calibration period as variables in the pool. Here by default</span></span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="co"># the predictor pool is capped at no larger than 1/10 the number of observations in the</span></span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="co"># calibration period. Beware that with lagged models the pool can become large even if</span></span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="co"># using only a few chronologies. For example, 5 chronologies and a specified maximum lag</span></span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="co"># of 2 years gives a pool of 25 potential predictors (five lags (-2 to +2) time 5</span></span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="co"># chronologies. In that case, if the calibration period were 100 years, only the 10 </span></span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="co"># potential predictors most highly correlated (Pearson) with the predictand would</span></span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="co"># be allowed in the pool.</span></span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>f<span class="ot">&lt;-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">10</span> <span class="co"># pool of potential predictors not allowed to be larger than this fraction of calibration period observations</span></span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a><span class="co"># Optionally specify to transform y before regression using either a log10</span></span>
-<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a><span class="co"># or square root transform. Keep in mind that log10 is invalid if y has </span></span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a><span class="co"># any zero or negative values, and that the square root transform is invalid</span></span>
-<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="co"># if y has any negative values. </span></span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="co">#   1 = no transform</span></span>
-<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a><span class="co">#   2 = square root transform</span></span>
-<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="co">#   3 = log10 transform</span></span>
-<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>ktransform<span class="ot">&lt;-</span><span class="dv">1</span> <span class="co"># Transform predictand?  </span></span>
-<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify the stopping rule for stepwise regression. Two options are available.</span></span>
-<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="co"># Regardless of the option selected, regression proceeds stepwise forward, at</span></span>
-<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a><span class="co"># each step entering the variable that gives the greatest reduction of residual</span></span>
-<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a><span class="co"># variance from the previous step. The stopping rule specifies how the final </span></span>
-<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="co"># regression model is selected. One option is step at which the regression model</span></span>
-<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a><span class="co"># has maximum adjusted R-squared. The other option is the step with maximum</span></span>
-<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a><span class="co"># RE of cross-validation </span></span>
-<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>kStopWhen<span class="ot">&lt;-</span><span class="dv">2</span>  <span class="co"># 1=max adjusted R-squared, 2= maximum RE</span></span>
-<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify whether the regression model for reconstruction uses original </span></span>
-<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a><span class="co"># chronologies or their principal components (PCs). A setting of "FALSE"</span></span>
-<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a><span class="co"># instructs to use the screened lagged chronologies as the pool. A setting of</span></span>
-<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a><span class="co"># "TRUE" instructs to use the PCs of those screened lagged chronologies.</span></span>
-<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>PCA<span class="ot">&lt;-</span><span class="cn">TRUE</span> <span class="co"># regression on PCs of screened lagged chronologies</span></span>
-<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">ask=</span><span class="cn">TRUE</span>) <span class="co"># pause before each plot; no need to edit this line</span></span>
-<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="re">END</span><span class="co"> of user-defined variables/parameters</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<p>The original Rmd file (ReconStep.Rmd) with full explanations, the UWFs it calls, sample input data, and running instructions are can be download from the <a href="https://github.com/ltrr-arizona-edu/TRISH-R">GitHub repository</a></p>
 <section id="section" class="level80">
 <p class="heading"></p>
 </section>
@@ -371,68 +74,7 @@ window.Quarto = {
 <h4 class="anchored" data-anchor-id="part-1.-read-input-optionally-transform-y-and-build-a-lagged-matrix-of-chronologies">PART 1. Read input, optionally transform <em>y</em>, and build a lagged matrix of chronologies</h4>
 <section id="section-1" class="level80">
 <p class="heading"></p>
-<p>The next chunk reads input time series, optionally builds a lagged time series matrix of chronologies, optionally transforms <em>y</em>, checks whether the tree-ring matrix has enough columns to support a PCA, plots the time series <em>y</em>, and lists the coded names of tree-ring variables in the console.</p>
-<p>If you have allowed lagged predictors, the lagged time series matrix of the input tree-ring chronologies is organized with unlagged series in the leftmost columns, followed by negative lags and positive lags. The column names of this lagged matrix identify the original chronology and lag. For example, X5, X5N1, X5P2 are chronology #5 lagged 0, -1 and +2 years from the year of the predictand.</p>
-<p>The program stops with an error message if you called for reconstruction by PCA and the matrix of lagged chronologies has fewer than three columns.</p>
-<p>Optional transformations for <em>y</em> are log10 and square root.</p>
-<p>The time series plot of <em>y</em> is covers all years of the provided <em>y</em>. The list of coded names of tree-ring variables that appears in the console identifies columns of the tree-ring matrix before screening against <em>y</em>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># READ INPUT TIME SERIES</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>V <span class="ot">&lt;-</span> <span class="fu">read.table</span>(fileClimate,<span class="at">sep=</span><span class="st">"</span><span class="sc">\t</span><span class="st">"</span>,<span class="at">header=</span><span class="cn">FALSE</span>) <span class="co"># input predictand, tab separated</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#V &lt;- read.table(fileClimate,sep="",header=FALSE) # input predictand, space separated</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>U <span class="ot">&lt;-</span> <span class="fu">read.table</span>(fileTree,<span class="at">sep=</span><span class="st">"</span><span class="sc">\t</span><span class="st">"</span>,<span class="at">header=</span><span class="cn">TRUE</span>)  <span class="co"># input chronologies, tab-sep</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#U &lt;- read.table(fileTree,sep="",header=TRUE)  # input chronologies, space-sep</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#--- TRIM PREDICTAND TO ELIMINATE NA'S</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>V<span class="ot">&lt;-</span><span class="fu">as.matrix</span>(V)</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>L<span class="ot">&lt;-</span><span class="fu">complete.cases</span>(V)</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>V<span class="ot">&lt;-</span>V[L,]</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#--- TRANSFORM PREDICTAND?</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>v<span class="ot">&lt;-</span>V[,<span class="dv">2</span>]</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>yrv<span class="ot">=</span>V[,<span class="dv">1</span>]</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (ktransform<span class="sc">==</span><span class="dv">1</span>){</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  v<span class="ot">&lt;-</span>v</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  dunits <span class="ot">&lt;-</span><span class="st">'original'</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> <span class="cf">if</span> (ktransform<span class="sc">==</span><span class="dv">2</span>) {</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  v<span class="ot">&lt;-</span><span class="fu">sqrt</span>(v)</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  dunits <span class="ot">&lt;-</span> <span class="st">'square root of original'</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span>  {</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  v<span class="ot">=</span><span class="fu">log10</span>(v)</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  dunits <span class="ot">&lt;-</span> <span class="st">'log10 of original'</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a> <span class="co"># want chronologies as matrix class</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>U<span class="ot">&lt;-</span><span class="fu">as.matrix</span>(U) </span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>yrU<span class="ot">&lt;-</span>U[,<span class="dv">1</span>]</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>U<span class="ot">&lt;-</span>U[,<span class="sc">-</span><span class="dv">1</span>]</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>yrU<span class="ot">&lt;-</span><span class="fu">as.matrix</span>(yrU)</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>U<span class="ot">&lt;-</span><span class="fu">as.matrix</span>(U)</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Call a UWF to build a lagged matrix of the input chronologies. The columns of</span></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co"># the lagged matrix, W, will be organized left to right in this order:</span></span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="co"># 1) unlagged chronologies</span></span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="co"># 2) negative lags on chronologies, beginning with lag t-1 from y</span></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="co"># 3) positive lags on chronologies, beginning with lag t+1 from y</span></span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>mU<span class="ot">&lt;-</span><span class="fu">nrow</span>(U)</span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>tgo<span class="ot">&lt;-</span>yrU[<span class="dv">1</span>]</span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>tsp<span class="ot">&lt;-</span>yrU[mU]</span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>ktrim<span class="ot">=</span><span class="dv">2</span></span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>D<span class="ot">&lt;-</span><span class="fu">LagYear</span>(U,tgo,tsp,nNeg,nPos,ktrim) <span class="co"># list with lagged matrix, ids, etc</span></span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>W<span class="ot">&lt;-</span>D<span class="sc">$</span>X <span class="co"># lagged matrix of chrons</span></span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(W)<span class="ot">&lt;-</span>D<span class="sc">$</span>ids <span class="co"># add column names associating variables and lags with W</span></span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>yrW<span class="ot">&lt;-</span>D<span class="sc">$</span>tGo<span class="sc">:</span>D<span class="sc">$</span>tSp</span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="co"># W, yrW, colnames(W) now desribed the full lagged chronology </span></span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Abort with error message if have called for reconstruction with PCA but </span></span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="co"># fewer than 3 variables in pool of potential predictors</span></span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> ((<span class="fu">ncol</span>(W)<span class="sc">&lt;</span><span class="dv">3</span>) <span class="sc">&amp;&amp;</span> (PCA))</span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="fu">stop</span>(<span class="st">"Error: You choose PCs for reconstruction by pool of potential predictors N&lt;3)"</span>)</span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="co"># Time plot of predictand </span></span>
-<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>tit1 <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">'Time plot of predictand ('</span>,dunits,<span class="st">' units); line at mean'</span>)</span>
-<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(yrv,v,<span class="at">type=</span><span class="st">'b'</span>,<span class="at">xlab=</span><span class="st">'Year'</span>,<span class="at">ylab=</span><span class="st">'Predictand'</span>,<span class="at">main=</span>tit1,<span class="at">col=</span><span class="st">'blue'</span>)</span>
-<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="fu">mean</span>(v),<span class="at">col=</span><span class="st">'gray'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -440,16 +82,6 @@ window.Quarto = {
 </figure>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Listing of variable codes in lagged chronology matrix</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">'%s'</span>,<span class="st">'Variables (cols) in the lagged chronology matrix W, before any correlation screening'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "Variables (cols) in the lagged chronology matrix W, before any correlation screening"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">'%s'</span>,<span class="fu">colnames</span>(W))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "X1"   "X1N1" "X1P1"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(tit1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="section-2" class="level64">
@@ -460,137 +92,10 @@ window.Quarto = {
 <h4 class="anchored" data-anchor-id="part-2.-correlation-screening-of-lagged-chronology-matrix">PART 2. Correlation screening of lagged chronology matrix</h4>
 <section id="section-3" class="level65">
 <p class="heading"></p>
-<p>The next chunk of code screens the matrix of lagged chronologies to include only the <em>m</em> variables most highly correlated (absolute correlation) with <em>y</em>. The purpose of the screening is avoid artificial, or “chance,” relationships that can result from an overly large pool of potential predictors <span class="citation" data-cites="Rencher&amp;Pun1980">(<a href="#ref-Rencher&amp;Pun1980" role="doc-biblioref">Rencher and Pun 1980</a>)</span>. Your setting (“User settings”) for parameter <em>f</em> in the next chunk controls the screening. Let’s take an example. With 5 chronologies, and allowing for lags of up to +-2 years, the pool of potential predictors has a total of 5x5=25 variables. If the length of the calibration period is 50 years, this means the the ratio of the size of the pool to the number of calibration observations is 25/50=0.5. Such a high ratio gives a high likelihood of chance relationships in stepwise regression. This risk can be reduced by keeping just those tree-ring variables most highly correlated with <em>y</em> in the pool (correlation screening). The setting for parameter <em>f</em> forces the pool of potential predictors to include at most <em>fN</em> variables; those variables are selected in order of decreasing absolute correlation with <em>y.</em> The default is <em>f=0.1</em>. You can change this to make the screening more or less stringent. The default follows the “10:1” rule of minimum recommended ratio of number of calibration observations to number of potential predictors in the pool for stepwise regression <span class="citation" data-cites="Chowdhury&amp;Turin2020">(<a href="#ref-Chowdhury&amp;Turin2020" role="doc-biblioref">Chowdhury and Turin 2020</a>)</span>.</p>
-<p>The next chunk also creates a list of the ids of the screened tree-ring variables. These or their principal components will comprise the pool of potential predictor for the reconstruction model. A bar plot of the correlations is also displayed. The longest bars in the chart correspond to the predictors passing screening. The coded names of those predictors are listed in the console. The correlations are computed for the calibration period that you specified in “User settings,” or otherwise for years that all series overlap the predictand (default calibration period).</p>
-<p>The “critical” absolute correlation as defined here is not necessarily statistically significant and indeed is not tested for statistical significance. The variables in the tree-ring matrix – possibly including lagged variables — are ranked according to absolute correlation with the predicand. The “nkeep” variables most highly correlated (absolute) with the predictand are retained as the pool of potential predictors. So, here the “critical” correlation is defined as the threshold absolute correlation that yields “nkeep” tree-ring variables in the pool of potential predictors. By lowering input parameter <em>f</em> you effectively require a stronger correlation for the variable to be included in the pool of potential predictors.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Cull common period predictand and all cols of lagged chron matrix</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>B<span class="ot">&lt;-</span><span class="fu">cbind</span>(yrv,v)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>A<span class="ot">&lt;-</span><span class="fu">cbind</span>(yrW,W)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>D<span class="ot">&lt;-</span><span class="fu">PeriodCommon</span>(A,B) <span class="co"># D$Y, D$X: predictand predictor matrices, with year in col 1</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>mv1<span class="ot">&lt;-</span>D<span class="sc">$</span>tsp<span class="sc">-</span>D<span class="sc">$</span>tgo<span class="sc">+</span><span class="dv">1</span> <span class="co"># number of observations in common period</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>v1<span class="ot">&lt;-</span>D<span class="sc">$</span>Y[,<span class="dv">2</span>] <span class="co"># common-period predictand</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>yrv1<span class="ot">&lt;-</span>D<span class="sc">$</span>Y[,<span class="dv">1</span>] <span class="co"># common-period time vector</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>ntemp<span class="ot">&lt;-</span><span class="fu">ncol</span>(D<span class="sc">$</span>X) <span class="co"># col-size of lagged predictor matrix, with year col</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>W1<span class="ot">&lt;-</span>D<span class="sc">$</span>X[,<span class="dv">2</span><span class="sc">:</span>ntemp] <span class="co"># common period predictor matrix</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>W1<span class="ot">&lt;-</span><span class="fu">as.matrix</span>(W1) <span class="co"># in case 1-col W1</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>yrW1<span class="ot">&lt;-</span>yrv1 <span class="co"># common period time vector, duped</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(W1)<span class="ot">&lt;-</span><span class="fu">colnames</span>(W) <span class="co"># column names remain the same as before culling </span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">#--- If you specified yrgoc or yrspc, truncate W1, yrW1, v1, yrv1 accordingly</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># If you specified a yrgoc or yrspc outside the range of yrv1, give error message</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>Lfront<span class="ot">=</span><span class="cn">FALSE</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>Lback<span class="ot">=</span><span class="cn">FALSE</span></span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co"># front</span></span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>Ltemp <span class="ot">=</span> <span class="fu">is.na</span>(yrgoc)</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (Ltemp){</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  yrgoc <span class="ot">&lt;-</span> yrv1[<span class="dv">1</span>]</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (yrgoc<span class="sc">&lt;</span>yrv1[<span class="dv">1</span>]){</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    strtemp<span class="ot">&lt;-</span><span class="fu">paste</span>(<span class="st">'Re-specify yrgoc.</span><span class="sc">\n</span><span class="st">'</span>,<span class="st">'You set yrgoc = '</span>,<span class="fu">sprintf</span>(<span class="st">'%5.0f'</span>,yrgoc),<span class="st">'.'</span>,</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>                   <span class="st">'</span><span class="sc">\n</span><span class="st">The data are not consistent with yrgoc&lt;'</span>,<span class="fu">sprintf</span>(<span class="st">'%5.0f'</span>,yrv1[<span class="dv">1</span>]))</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(strtemp)</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (yrgoc <span class="sc">==</span> yrv1[<span class="dv">1</span>]) {</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>    Lfront<span class="ot">=</span><span class="cn">TRUE</span></span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="co"># back</span></span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>Lstopc <span class="ot">&lt;-</span> <span class="cn">FALSE</span> <span class="co"># initial flag for locking in stop year of calibration to what user specified, as yrspc</span></span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>Ltemp <span class="ot">&lt;-</span> <span class="fu">is.na</span>(yrspc)</span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (Ltemp){</span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>  Lstopc <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>  yrspc <span class="ot">&lt;-</span> yrv1[<span class="fu">length</span>(yrv1)]</span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (yrspc<span class="sc">&gt;</span>yrv1[<span class="fu">length</span>(yrv1)]){</span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>    strtemp<span class="ot">&lt;-</span><span class="fu">paste</span>(<span class="st">'Re-specify yrspc.</span><span class="sc">\n</span><span class="st">'</span>,<span class="st">'You set yrspc = '</span>,<span class="fu">sprintf</span>(<span class="st">'%5.0f'</span>,yrspc),<span class="st">'.'</span>,</span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>                   <span class="st">'</span><span class="sc">\n</span><span class="st">The data are not consistent with yrsp &gt; '</span>,<span class="fu">sprintf</span>(<span class="st">'%5.0f'</span>,yrv1[<span class="fu">length</span>(yrv1)]))</span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(strtemp)</span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (yrspc <span class="sc">==</span> yrv1[<span class="fu">length</span>(yrv1)]) {</span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>    Lback<span class="ot">=</span><span class="cn">TRUE</span></span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a><span class="co"># If you have specified a calibration period shorter than the common period of lagged chronologies and predictand, </span></span>
-<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a><span class="co"># truncate accordingly because want the correlation screening as well as model calibration on the shortened interval</span></span>
-<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>Ltemp <span class="ot">=</span> Lfront <span class="sc">||</span> Lback</span>
-<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (Ltemp){</span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>  L <span class="ot">&lt;-</span> (yrv1 <span class="sc">&gt;=</span> yrgoc) <span class="sc">&amp;</span> (yrv1<span class="sc">&lt;=</span>yrspc)</span>
-<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>  v1 <span class="ot">&lt;-</span> v1[L]; yrv1 <span class="ot">&lt;-</span> yrv1[L]</span>
-<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>  W1 <span class="ot">&lt;-</span> W1[L,]; yrW1 <span class="ot">&lt;-</span> yrW1[L]</span>
-<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>  mv1 <span class="ot">=</span> <span class="fu">length</span>(v1)</span>
-<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>NULL</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(ntemp,A,B,D,Lfront,Lback,Ltemp,L)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check specified years for "independent verification" (IV)." If both yrgoi and yrspi are NA, no</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># IV is attempted. Settings yrgoi and yrspi must BOTH be years or BOTH be NA. If IV is desired, </span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># no overlap is allowed of period yrgoi-yrspi with yrgoc-yrspc, and the IV period must be at least 5 years long. </span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>LIV <span class="ot">&lt;-</span> <span class="sc">!</span>(<span class="fu">is.na</span>(yrgoi) <span class="sc">&amp;&amp;</span> <span class="fu">is.na</span>(yrspi)) <span class="co"># if true, you want IV </span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">sum</span>(<span class="fu">is.na</span>(<span class="fu">c</span>(yrgoi,yrspi)))<span class="sc">==</span><span class="dv">1</span>){</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">'Not allowed to set just one of yrgo1 and yrspi to NA'</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (LIV){</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># IV period must be at least 5 years</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  nIV <span class="ot">&lt;-</span> yrspi<span class="sc">-</span>yrgoi<span class="sc">+</span><span class="dv">1</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (nIV <span class="sc">&lt;</span> <span class="dv">5</span>){</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">'Specified period for independent verification shorter than 5 years'</span>)</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    yrIV <span class="ot">&lt;-</span> yrgoi<span class="sc">:</span>yrspi <span class="co"># vector of IV years</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># IV period cannot overlap calibration/validation period</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">any</span>(yrIV <span class="sc">%in%</span> yrv1)){</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">'Specified period for indpendent verification overlaps calibration period'</span>)</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Status: yrv1,v1, yrW1, W1 are calibration-period predictand (v1) and</span></span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="co"># predictor. Names of columns of W1, colnames(W1), are coded to indicate lag</span></span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Correlate v1 with cols of W1 and identify threshold correlation,'</span></span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="co"># rc, marking the floor(f*mv1) highest correlation, where f is a decimal fraction and</span></span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="co"># mv1 is the number of observations in the calibraiton period. </span></span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Critical threshold absolute correlation</span></span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>nkeep<span class="ot">&lt;-</span><span class="fu">floor</span>(f<span class="sc">*</span>mv1) <span class="co"># want no more than this number of potential predictors in pool</span></span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Cannot keep more cols of W1 than W1 has</span></span>
-<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>nkeep <span class="ot">&lt;-</span><span class="fu">min</span>(nkeep,<span class="fu">ncol</span>(W1))</span>
-<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>r<span class="ot">&lt;-</span><span class="fu">cor</span>(W1,v1) <span class="co"># Pearson correlation</span></span>
-<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>rs<span class="ot">&lt;-</span><span class="fu">sort</span>(<span class="fu">abs</span>(r),<span class="at">decreasing=</span><span class="cn">TRUE</span>,<span class="at">index.return=</span><span class="cn">TRUE</span>) <span class="co"># sorted r (list object)</span></span>
-<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>rc <span class="ot">=</span> rs<span class="sc">$</span>x[nkeep] <span class="co"># threshold absolute correlation for screening</span></span>
-<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Pull subset of predictors with absolute correlation &gt;rc</span></span>
-<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>j<span class="ot">&lt;-</span>rs<span class="sc">$</span>ix;</span>
-<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>nW2 <span class="ot">&lt;-</span> nkeep <span class="co"># number of screened potential predictors</span></span>
-<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>ix1<span class="ot">&lt;-</span>j[<span class="dv">1</span><span class="sc">:</span>nkeep] <span class="co"># column indices of screened ...</span></span>
-<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>W2<span class="ot">&lt;-</span>W1[,ix1] <span class="co"># correlation-screened set of predictors; note these are ordered</span></span>
-<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a><span class="co"># left to right in W2 in order of decreasing absolute correlation with v1</span></span>
-<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>W2<span class="ot">&lt;-</span><span class="fu">as.matrix</span>(W2)</span>
-<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>yrW2<span class="ot">&lt;-</span>yrW1</span>
-<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a><span class="co"># STATUS: W2, yrW2 are the screened potential predictors; ix1 is</span></span>
-<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a><span class="co"># pointer to columns of the screened potential predictors in the</span></span>
-<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a><span class="co"># full matrix of lagged potential predictors</span></span>
-<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Barplot of calib-period correlation of predictand with lagged chronologies</span></span>
-<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(<span class="fu">t</span>(r))</span>
-<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>tit1 <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">'r of predictand with lagged chronologies '</span>,</span>
-<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>              <span class="fu">as.integer</span>(yrgoc),<span class="st">'-'</span>,<span class="fu">as.integer</span>(yrspc),<span class="st">'</span><span class="sc">\n</span><span class="st">'</span>,<span class="fu">as.integer</span>(nkeep),<span class="st">' passed screening'</span>,</span>
-<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>              <span class="st">'(critical absolute r='</span>,<span class="fu">sprintf</span>(<span class="st">'%5.2f'</span>,rc),<span class="st">')'</span>)</span>
-<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(tit1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -598,12 +103,9 @@ window.Quarto = {
 </figure>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># List tree-ring variables passing screening</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">'%s'</span>,<span class="st">'Variables passing screening (these in W2 in order L to R by ranked absolute r)'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Variables passing screening (these in W2 in order L to R by ranked absolute r)"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">'%s'</span>,<span class="fu">colnames</span>(W2))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "X1"   "X1P1" "X1N1"</code></pre>
 </div>
@@ -615,37 +117,8 @@ window.Quarto = {
 </section>
 <section id="part-3.-optionally-extend-calibration-period" class="level4">
 <h4 class="anchored" data-anchor-id="part-3.-optionally-extend-calibration-period">PART 3. Optionally extend calibration period</h4>
-<p>The next chunk optionally revises the end year for calibration of the reconstruction model if the model specifications have called for lagged predictors and correlation screening indicates that positively lagged tree-ring data will not be in predictor pool. For example, if you specified that the regression should allow lags +1 and +2 years relative to <em>y</em> as predictors and screening shows that positively lagged chronologies are not significantly correlated with <em>y</em>, the calibration period can be extended two years on the recent end. Such extension is done only if you have specified that yrspc is to be determined automatically from the overlap of <em>y</em> and tree rings (i.e., yrsp=NA).</p>
 <section id="section-5" class="level65">
 <p class="heading"></p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>Wtemp<span class="ot">&lt;-</span>W[,ix1] <span class="co"># full lagged matrix, screened cols only</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>Wtemp<span class="ot">&lt;-</span><span class="fu">as.matrix</span>(Wtemp)</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>L <span class="ot">&lt;-</span> yrW<span class="sc">&gt;=</span>yrv1[<span class="dv">1</span>] <span class="sc">&amp;</span> yrW<span class="sc">&lt;=</span>yrv1[mv1] <span class="co"># logical to years of predictand</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>Wtemp<span class="ot">&lt;-</span>Wtemp[L,]</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>yrWtemp<span class="ot">&lt;-</span>yrW[L]</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>Wtemp<span class="ot">&lt;-</span><span class="fu">as.matrix</span>(Wtemp)</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Revise screened predictor pool calibration years if possible and your input setting of yrspc was NA</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> ((<span class="fu">nrow</span>(Wtemp) <span class="sc">!=</span> <span class="fu">nrow</span>(W2)) <span class="sc">&amp;&amp;</span> Lstopc ) {</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  W2<span class="ot">&lt;-</span>Wtemp</span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  yrW2<span class="ot">&lt;-</span>yrWtemp</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check yrv against yrW2 and set calibration period as years with complete</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># cases of v and W2</span></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  B<span class="ot">&lt;-</span><span class="fu">cbind</span>(yrv,v)</span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  A<span class="ot">&lt;-</span><span class="fu">cbind</span>(yrW2,W2)</span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  D<span class="ot">&lt;-</span><span class="fu">PeriodCommon</span>(A,B) <span class="co"># D$Y, D$X: predictand predictor matrices, with year in col 1</span></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  mv1<span class="ot">&lt;-</span>D<span class="sc">$</span>tsp<span class="sc">-</span>D<span class="sc">$</span>tgo<span class="sc">+</span><span class="dv">1</span> <span class="co"># number of observations in common period</span></span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  v1<span class="ot">&lt;-</span>D<span class="sc">$</span>Y[,<span class="dv">2</span>] <span class="co"># common period predictand</span></span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  yrv1<span class="ot">&lt;-</span>D<span class="sc">$</span>Y[,<span class="dv">1</span>] <span class="co"># common period time vector</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  ntemp<span class="ot">&lt;-</span><span class="fu">ncol</span>(D<span class="sc">$</span>X) <span class="co"># col-size of lagged predictand matrix, with year col</span></span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>  W2<span class="ot">&lt;-</span>D<span class="sc">$</span>X[,<span class="dv">2</span><span class="sc">:</span>ntemp] <span class="co"># common period predictand matrix</span></span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  yrW2<span class="ot">&lt;-</span>yrv1 <span class="co"># common period time vector, duped</span></span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(W2)<span class="ot">&lt;-</span><span class="fu">colnames</span>(W)[ix1] <span class="co"># column names remain the same as before culling </span></span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  yrspc<span class="ot">=</span>yrv1[<span class="fu">length</span>(yrv1)] <span class="co"># revised end year for calibration</span></span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rm</span>(ntemp,A,B,D)</span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 <section id="section-6" class="level80">
 <p class="heading"></p>
 </section>
@@ -653,49 +126,9 @@ window.Quarto = {
 </section>
 <section id="part-4.-pca-transformation-of-chronologies" class="level4">
 <h4 class="anchored" data-anchor-id="part-4.-pca-transformation-of-chronologies">PART 4. PCA transformation of chronologies</h4>
-<p>The next chunk does a principal component analysis (PCA) of the screened, lagged tree-ring chronologies. Depending on the specifications, the pool of potential predictors for the reconstruction model will be the chronologies themselves or their PCs. A PCA is run and PC time series are generated even if you are using the original chronologies as predictors in the reconstruction model. The PCA is done on the full common period of the screened lagged chronologies. Two plots are produced: a scree plot of eigenvalues, and a time plot of the scores of the first component (PC1). Additional data from the PCA is stored in the output list resPCA.</p>
-<p>PCA is not attempted if the matrix of screened, lagged chronologies has fewer than three columns. If PCA is not attempted, the output variable resPCA is set equal to the string “Too few tree-ring variables to justify PCA.”</p>
 <section id="section-7" class="level79">
 <p class="heading"></p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Get matrix of screened lagged chronologies for full common period of those</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># chronologies. This will be used for the PCA, and will also be needed later for</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># reconstruction by the non-PCA option</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>Wf<span class="ot">&lt;-</span>W[,ix1] <span class="co"># full matrix of screened lagged chronologies</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>yrWf <span class="ot">&lt;-</span>yrW</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>L<span class="ot">&lt;-</span><span class="fu">complete.cases</span>(Wf) <span class="co"># logical to years with no missing data</span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>W3<span class="ot">&lt;-</span>Wf[L,] <span class="co"># common-period screened lagged Chronologies</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>yrW3<span class="ot">&lt;-</span>yrWf[L]</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co"># PCA: option activated only if 3 or more screened lagged chronologies and more than one chronology in input tree-ring matrix</span></span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">dim</span>(W3)[<span class="dv">2</span>]<span class="sc">&gt;</span><span class="dv">2</span>){</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="co"># if (dim(W3)[2]&gt;2 &amp;&amp; dim(U)[2]&gt;1){ # earlier version also had condition on number of original chronologies (before any lagging) for PCA to be attempted</span></span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  resPCA<span class="ot">&lt;-</span><span class="fu">princomp</span>(<span class="at">x=</span>W3,<span class="at">cor=</span><span class="cn">TRUE</span>,<span class="at">fix_sign=</span><span class="cn">TRUE</span>) <span class="co"># PCA, on correlation matrix</span></span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>(resPCA) <span class="co"># summary of PCA</span></span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">screeplot</span>(resPCA) <span class="co"># scree plot of variance accounted for by PCa</span></span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  titTemp <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">'Scree plot of principal components of screened lagged chronologies'</span>,</span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>                   <span class="st">'</span><span class="sc">\n</span><span class="st">For details of the PCA, type summary(resPCA) at R console'</span>)</span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">title</span>(titTemp)</span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>  A<span class="ot">&lt;-</span>resPCA<span class="sc">$</span>scores  <span class="co"># the new times series; PC "scores"</span></span>
-<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>  yrA<span class="ot">&lt;-</span>yrW3</span>
-<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(yrA,A[,<span class="dv">1</span>],<span class="at">type=</span><span class="st">"l"</span>,<span class="at">xlab=</span><span class="st">"Year"</span>,<span class="at">ylab=</span><span class="st">"Score"</span>) <span class="co"># time plot of PC1</span></span>
-<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">title</span>(<span class="st">'Scores of PC1 of screened lagged chronologies'</span>)</span>
-<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Pull rows of A for regression modeling; </span></span>
-<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>  yrA2<span class="ot">&lt;-</span><span class="fu">intersect</span>(yrA,yrv1)</span>
-<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>  L<span class="ot">&lt;-</span> (yrA<span class="sc">&gt;=</span>yrA2[<span class="dv">1</span>]) <span class="sc">&amp;</span> (yrA<span class="sc">&lt;=</span>yrA2[<span class="fu">length</span>(yrA2)])</span>
-<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>  A2<span class="ot">&lt;-</span>A[L,]</span>
-<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># STATUS. resPCA is a "princomp" object. A summary of the PCA is</span></span>
-<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># printed by &gt;summary(resPCA). Loading, scores and other data</span></span>
-<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># can be obtained by such commands as pcW3$loadings. For </span></span>
-<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># regression and reconstruction, the scores are stored</span></span>
-<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># in matrix A2 and A, with years in yrA2 and yrA</span></span>
-<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>  resPCA <span class="ot">&lt;-</span> (<span class="st">'Too few tree-ring variables to justify PCA.'</span>)</span>
-<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -718,48 +151,12 @@ window.Quarto = {
 </section>
 <section id="part-5.-regression-modeling" class="level4">
 <h4 class="anchored" data-anchor-id="part-5.-regression-modeling">PART 5. Regression modeling</h4>
-<p>The next chunk does stepwise regression modeling of <em>y</em> on either the screened lagged chronologies or their PCs. The tree-ring variable most highly correlated with <em>y</em> enters first. Subsequent predictors enter forward stepwise in order of decreasing percentage of residual variance (from previous step) explained. At each step adjusted <em>R<sup>2</sup></em> is recorded and the model is cross-validated. All variables in the pool of potential predictors eventually enter and statistics are examined to determine a final step. This step follows the stopping rule you have specified (see User settings).</p>
-<p>The following output appears in the console:</p>
-<ol type="1">
-<li>Table with model coefficients</li>
-<li>Time series plots of observed and reconstructed <em>y</em></li>
-<li>Scatterplot of reconstructed <em>y</em> against observed <em>y</em>, with adjusted <em>R</em><sup>2</sup> annotated</li>
-</ol>
 <section id="section-9" class="level80">
 <p class="heading"></p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Review of needed variables, which are ready:</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   v1, yrv1:  [numeric] time series of predictand and its years</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   W2, yrW2: [matrix, vector]: time series matrix of screened predictor pool</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   A2, yrA2 is the PC equivalent of W2, yrW2</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   colnames(W2) [character] ids of screened lagged predictors, coded by column in</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     original loaded tree-ring matrix and by lag</span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   ix1[integer]: index of lagged screened predictors indicating the columns </span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">#     those in the matrix of the lagged tree-ring matrix before screening. </span></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">#     ix1 will be needed later when we want to pull tree-ring data to generate</span></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co">#     the long-term reconstruction</span></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   For that and for reconstruction we have the full lagged tree-ring matrix</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co">#     W, yrW [matrix, numeric], and we know that W1 is the sub-matrix of</span></span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">#     columns ix1 of W</span></span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span>PCA <span class="sc">|</span> (<span class="fu">dim</span>(W3)[<span class="dv">2</span>]<span class="sc">&lt;</span><span class="dv">2</span>)){</span>
-<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Regression on chronologies themselves (possibly with lags)</span></span>
-<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  namesW2<span class="ot">&lt;-</span><span class="fu">colnames</span>(W2) <span class="co"># want these names as a separate input arg to ForwStep1</span></span>
-<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>  F<span class="ot">&lt;-</span><span class="fu">ForwStep1</span>(W2,namesW2, v1,kStopWhen,nNeg,nPos) <span class="co"># forward stepwise </span></span>
-<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   regression of v1 on W2</span></span>
-<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>}<span class="cf">else</span>{</span>
-<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>  namesA2<span class="ot">&lt;-</span><span class="fu">colnames</span>(A2) <span class="co"># names of PCs: Comp.1, Comp.2, etc</span></span>
-<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>  F <span class="ot">&lt;-</span> <span class="fu">ForwStep1</span>(A2,namesA2,v1,kStopWhen,nNeg,nPos) <span class="co"># forward stepwise </span></span>
-<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   regression of v1 on A2</span></span>
-<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>} </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in rm(bb, bbnms, bbnms1, bbnms2): object 'bb' not found</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Get the model object see a summary </span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>M<span class="ot">&lt;-</span>F<span class="sc">$</span>Model</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(M)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -767,32 +164,21 @@ lm(formula = y ~ U)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--72.888 -24.084  -4.905  18.541 170.179 
+-78.850 -28.066  -4.253  23.015 140.387 
 
 Coefficients:
             Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  185.969      4.021  46.250  &lt; 2e-16 ***
-Comp.1        22.408      3.224   6.951 6.34e-10 ***
-Comp.2        11.053      4.593   2.406   0.0182 *  
-Comp.3        37.049      4.884   7.586 3.40e-11 ***
+(Intercept)  184.277      3.674  50.159   &lt;2e-16 ***
+Comp.1         8.196      3.913   2.095   0.0383 *  
+Comp.2        48.079      4.032  11.923   &lt;2e-16 ***
+Comp.3         6.347      4.285   1.481   0.1411    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 38.36 on 87 degrees of freedom
-Multiple R-squared:  0.5621,    Adjusted R-squared:  0.547 
-F-statistic: 37.22 on 3 and 87 DF,  p-value: 1.43e-15</code></pre>
+Residual standard error: 41.07 on 121 degrees of freedom
+Multiple R-squared:  0.5466,    Adjusted R-squared:  0.5353 
+F-statistic: 48.62 on 3 and 121 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get fitted values, bind into a matrix with the observed, and plot</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># time series</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>yh <span class="ot">&lt;-</span> M<span class="sc">$</span>fitted.values</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>yrgo<span class="ot">&lt;-</span>yrv1[<span class="dv">1</span>]</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>Z<span class="ot">&lt;-</span><span class="fu">cbind</span>(v1,yh)</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>Z.ts <span class="ot">&lt;-</span><span class="fu">ts</span>(Z,<span class="at">start=</span>yrv1[<span class="dv">1</span>])</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ts.plot</span>(Z.ts,<span class="at">type=</span><span class="st">'b'</span>,<span class="at">col=</span><span class="fu">c</span>(<span class="st">'blue'</span>,<span class="st">'red'</span>),<span class="at">xlim=</span><span class="fu">c</span>(yrgo,yrv1[<span class="fu">length</span>(v1)]))</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="dv">0</span>)</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Add a title and line at the mean</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">'Observed (blue) and Reconstructed (red)'</span>)</span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="fu">mean</span>(v1),<span class="at">col=</span><span class="st">'grey'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -800,10 +186,6 @@ F-statistic: 37.22 on 3 and 87 DF,  p-value: 1.43e-15</code></pre>
 </figure>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Scatterplot of predicted on observed, with least-squares</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># fit straight lin as well as loess fit of locattion an spread</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">scatterplot</span>(v1,yh,<span class="at">xlab=</span><span class="st">'Observed'</span>,<span class="at">ylab=</span><span class="st">'Predicted'</span>)</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="fu">sprintf</span>(<span class="st">'Adjusted R-squared = %5.2f'</span>,F<span class="sc">$</span>RsquaredAdj))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -819,164 +201,136 @@ F-statistic: 37.22 on 3 and 87 DF,  p-value: 1.43e-15</code></pre>
 </section>
 <section id="part-6.-reconstruction" class="level4">
 <h4 class="anchored" data-anchor-id="part-6.-reconstruction">PART 6. Reconstruction</h4>
-<p>The next chunk multiplies the estimated regression coefficients times the matrix of screened lagged tree-ring chronologies (or their PCs) to generate the reconstruction, <span class="math inline">\(\hat{y}\)</span>. This chunk also uses R’s built-in “lm” function to recalibrate the final model and compute additional calibration statistics, and checks that the “fitted values” returned by “lm” are the same as the calibration-period segment of <span class="math inline">\(\hat{y}\)</span>. These data are listed in two columns in the console so that you can verify that they are the same.</p>
 <section id="section-11" class="level80">
 <p class="heading"></p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">#X&lt;-as.data.frame(W3[,F$ColsInModel]) # predictor matrix f</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span>PCA){</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  X<span class="ot">&lt;-</span>W3[,F<span class="sc">$</span>ColsInModel] <span class="co"># predictor matrix for recon</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  yrX<span class="ot">&lt;-</span>yrW3</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>}<span class="cf">else</span>{</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  X<span class="ot">&lt;-</span>A[,F<span class="sc">$</span>ColsInModel] <span class="co"># predictor matrix for recon</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  yrX<span class="ot">&lt;-</span>yrA</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(X)</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>mX <span class="ot">=</span> <span class="fu">nrow</span>(X) <span class="co"># number of rows (years) in predictor matrix</span></span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>Xones<span class="ot">=</span><span class="fu">as.matrix</span>(<span class="fu">rep</span>(<span class="dv">1</span>,mX)) </span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>X<span class="ot">&lt;-</span><span class="fu">cbind</span>(Xones,X) <span class="co"># add column of 1's to predictor matrix</span></span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>b<span class="ot">&lt;-</span>F<span class="sc">$</span>Coefficients <span class="co"># regression coeffs</span></span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>b<span class="ot">&lt;-</span><span class="fu">as.matrix</span>(b) <span class="co">#... to row vector</span></span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>v1hat<span class="ot">&lt;-</span>X <span class="sc">%*%</span> b   <span class="co"># reconstructions</span></span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="co">#-- renaming for simplicity; know have v1,yrv as calib-period predictand</span></span>
-<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> v    <span class="co"># observed predictand, all available years</span></span>
-<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>yry <span class="ot">&lt;-</span> yrv</span>
-<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>yc <span class="ot">&lt;-</span> v1; <span class="co"># calibration period predictand</span></span>
-<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>yryc <span class="ot">&lt;-</span>yrv1</span>
-<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>yh <span class="ot">&lt;-</span> v1hat <span class="co"># reconstructed ("hat") predictand</span></span>
-<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>yryh <span class="ot">&lt;-</span>yrX </span>
-<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a><span class="co">#---- Quality control: are predictions for calib period the same as</span></span>
-<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a><span class="co"># fitted values from the lm function?</span></span>
-<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>yf<span class="ot">&lt;-</span><span class="fu">fitted</span>(M) <span class="co"># fitted valued from model object</span></span>
-<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>yryf <span class="ot">&lt;-</span>yrv1 <span class="co"># these are for the calib years</span></span>
-<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>yr1 <span class="ot">&lt;-</span> yryf[<span class="dv">1</span>] <span class="co"># start year of calib</span></span>
-<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>yr2 <span class="ot">&lt;-</span>yryf[<span class="fu">length</span>(yryf)] <span class="co"># end year of calibration</span></span>
-<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>L <span class="ot">&lt;-</span> yryh<span class="sc">&gt;=</span>yr1 <span class="sc">&amp;</span> yryh<span class="sc">&lt;=</span>yr2</span>
-<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>ycheck<span class="ot">&lt;-</span>yh[L]</span>
-<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that specified period yrgo-yrspi for indpendent verification consistent with</span></span>
-<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a><span class="co"># overlap of reconstructed and observed predictand </span></span>
-<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Know that if LIV =TRUE, you want independent verification, and if FALSE, will skip it</span></span>
-<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (LIV){</span>
-<span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a>  yrgoO <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">c</span>(yrv[<span class="dv">1</span>],yryh[<span class="dv">1</span>])) <span class="co"># first year of overlap of recon and observed predictand</span></span>
-<span id="cb25-40"><a href="#cb25-40" aria-hidden="true" tabindex="-1"></a>  yrspO <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="fu">c</span>(yrv[<span class="fu">length</span>(yrv)]),yryh[<span class="fu">length</span>(yryh)]) <span class="co"># last year of ...</span></span>
-<span id="cb25-41"><a href="#cb25-41" aria-hidden="true" tabindex="-1"></a>  yrO <span class="ot">&lt;-</span> yrgoO<span class="sc">:</span>yrspO</span>
-<span id="cb25-42"><a href="#cb25-42" aria-hidden="true" tabindex="-1"></a>  Lkill <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">all</span>(yrIV <span class="sc">%in%</span> yrO)</span>
-<span id="cb25-43"><a href="#cb25-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (Lkill){</span>
-<span id="cb25-44"><a href="#cb25-44" aria-hidden="true" tabindex="-1"></a>    str_kill <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">'You specified independent verification (IV) period '</span>,<span class="fu">as.integer</span>(yrgoi),<span class="st">'-'</span>,</span>
-<span id="cb25-45"><a href="#cb25-45" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">as.integer</span>(yrspi),<span class="st">' but overlap of observed and reonstructed predictand covers only '</span>,</span>
-<span id="cb25-46"><a href="#cb25-46" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">as.integer</span>(yrgoO),<span class="st">'-'</span>,<span class="fu">as.integer</span>(yrspO),</span>
-<span id="cb25-47"><a href="#cb25-47" aria-hidden="true" tabindex="-1"></a>                      <span class="st">'. And keep in mind that IV cannot include any years in the '</span>,<span class="fu">as.integer</span>(yrgoc),</span>
-<span id="cb25-48"><a href="#cb25-48" aria-hidden="true" tabindex="-1"></a>                      <span class="st">'-'</span>,<span class="fu">as.integer</span>(yrspc),<span class="st">' calibration period.'</span>)</span>
-<span id="cb25-49"><a href="#cb25-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(str_kill)</span>
-<span id="cb25-50"><a href="#cb25-50" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb25-51"><a href="#cb25-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rm</span>(Lkill)</span>
-<span id="cb25-52"><a href="#cb25-52" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb25-53"><a href="#cb25-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-54"><a href="#cb25-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-55"><a href="#cb25-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Quality control (QC1)</span></span>
-<span id="cb25-56"><a href="#cb25-56" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Print 2-col matrix and check that the column of lm-fitted values is </span></span>
-<span id="cb25-57"><a href="#cb25-57" aria-hidden="true" tabindex="-1"></a><span class="co"># identical to the column of reconstructed values generated by applying the</span></span>
-<span id="cb25-58"><a href="#cb25-58" aria-hidden="true" tabindex="-1"></a><span class="co"># regression equation to the matrix of screened lagged chronologies for</span></span>
-<span id="cb25-59"><a href="#cb25-59" aria-hidden="true" tabindex="-1"></a><span class="co"># the calibration period</span></span>
-<span id="cb25-60"><a href="#cb25-60" aria-hidden="true" tabindex="-1"></a>QC1<span class="ot">&lt;-</span><span class="fu">cbind</span>(<span class="fu">as.matrix</span>(yf),<span class="fu">as.matrix</span>(ycheck))</span>
-<span id="cb25-61"><a href="#cb25-61" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(QC1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>        [,1]      [,2]
-1  247.62574 247.62574
-2  219.12569 219.12569
-3   90.21814  90.21814
-4  120.15844 120.15844
-5  198.31956 198.31956
-6  115.38901 115.38901
-7  189.92642 189.92642
-8  115.48766 115.48766
-9  233.26314 233.26314
-10 216.79996 216.79996
-11 246.16906 246.16906
-12 198.96460 198.96460
-13 239.30233 239.30233
-14 226.46795 226.46795
-15 250.82116 250.82116
-16 245.92244 245.92244
-17 245.25876 245.25876
-18 258.32175 258.32175
-19 230.80670 230.80670
-20 223.39908 223.39908
-21 240.01147 240.01147
-22 173.98425 173.98425
-23 231.89542 231.89542
-24 244.99754 244.99754
-25 157.95604 157.95604
-26 229.81851 229.81851
-27 158.26478 158.26478
-28 190.91347 190.91347
-29 150.35176 150.35176
-30 217.32441 217.32441
-31 194.10768 194.10768
-32 174.95059 174.95059
-33 207.35411 207.35411
-34 153.95089 153.95089
-35 132.78498 132.78498
-36 220.86527 220.86527
-37 178.31833 178.31833
-38 109.66828 109.66828
-39 210.26033 210.26033
-40 136.63080 136.63080
-41 183.97362 183.97362
-42 181.37329 181.37329
-43 157.74265 157.74265
-44 170.64554 170.64554
-45 211.82731 211.82731
-46 217.29220 217.29220
-47 192.07444 192.07444
-48 173.35636 173.35636
-49 185.50367 185.50367
-50 117.06771 117.06771
-51 149.95488 149.95488
-52 180.12184 180.12184
-53 198.31255 198.31255
-54 161.50645 161.50645
-55  86.86561  86.86561
-56 223.02764 223.02764
-57 160.35267 160.35267
-58 157.70749 157.70749
-59 151.30642 151.30642
-60 125.65493 125.65493
-61 195.67232 195.67232
-62 212.55917 212.55917
-63  83.76026  83.76026
-64 209.26620 209.26620
-65 159.41783 159.41783
-66 192.70148 192.70148
-67 160.80941 160.80941
-68 126.21251 126.21251
-69 200.07812 200.07812
-70 198.62631 198.62631
-71 156.44834 156.44834
-72 157.22942 157.22942
-73 205.00141 205.00141
-74 158.03691 158.03691
-75 125.00121 125.00121
-76 192.82386 192.82386
-77 203.31069 203.31069
-78 181.58448 181.58448
-79 235.10165 235.10165
-80 164.17149 164.17149
-81  84.63716  84.63716
-82 238.74957 238.74957
-83 210.17319 210.17319
-84 209.72599 209.72599
-85 185.46219 185.46219
-86 185.57927 185.57927
-87 235.05800 235.05800
-88 182.68935 182.68935
-89 241.52223 241.52223
-90 222.30528 222.30528
-91 197.67094 197.67094</code></pre>
+<pre><code>         [,1]      [,2]
+1    86.32890  86.32890
+2   265.84745 265.84745
+3   255.84606 255.84606
+4   120.15843 120.15843
+5   133.50523 133.50523
+6   213.08952 213.08952
+7   123.93740 123.93740
+8   239.78438 239.78438
+9   142.60858 142.60858
+10  267.06594 267.06594
+11  236.96078 236.96078
+12  292.75473 292.75473
+13  203.07891 203.07891
+14  221.20049 221.20049
+15  197.04386 197.04386
+16  217.96709 217.96709
+17  205.41692 205.41692
+18  200.59910 200.59910
+19  226.65480 226.65480
+20  200.76140 200.76140
+21  218.56644 218.56644
+22  184.38927 184.38927
+23  143.97719 143.97719
+24  229.91798 229.91798
+25  220.12279 220.12279
+26  129.88634 129.88634
+27  188.65321 188.65321
+28  135.44228 135.44228
+29  160.94912 160.94912
+30  173.17848 173.17848
+31  200.81540 200.81540
+32  190.79184 190.79184
+33  159.77925 159.77925
+34  215.77974 215.77974
+35  148.97559 148.97559
+36  147.41323 147.41323
+37  206.03407 206.03407
+38  176.38072 176.38072
+39  125.28204 125.28204
+40  200.64321 200.64321
+41  145.17069 145.17069
+42  177.88359 177.88359
+43  196.20445 196.20445
+44  206.92414 206.92414
+45  167.39484 167.39484
+46  220.15515 220.15515
+47  229.02439 229.02439
+48  196.73826 196.73826
+49  150.05476 150.05476
+50  178.20305 178.20305
+51  107.73267 107.73267
+52  143.85121 143.85121
+53  179.81365 179.81365
+54  203.18938 203.18938
+55  174.70213 174.70213
+56   87.70513  87.70513
+57  240.69336 240.69336
+58  161.57598 161.57598
+59  184.30032 184.30032
+60  167.72889 167.72889
+61  133.30336 133.30336
+62  210.13974 210.13974
+63  211.42549 211.42549
+64  101.15446 101.15446
+65  219.27124 219.27124
+66  175.27926 175.27926
+67  216.14274 216.14274
+68  159.90261 159.90261
+69  126.13093 126.13093
+70  200.43086 200.43086
+71  198.99478 198.99478
+72  190.67394 190.67394
+73  197.20527 197.20527
+74  218.83443 218.83443
+75  175.16730 175.16730
+76  128.03380 128.03380
+77  211.09663 211.09663
+78  233.10288 233.10288
+79  181.83333 181.83333
+80  227.46331 227.46331
+81  142.15658 142.15658
+82   39.17020  39.17020
+83  250.89588 250.89588
+84  290.14108 290.14108
+85  225.39382 225.39382
+86  183.79815 183.79815
+87  187.15898 187.15898
+88  200.60513 200.60513
+89  168.07164 168.07164
+90  222.11753 222.11753
+91  191.33514 191.33514
+92  181.69843 181.69843
+93  218.77090 218.77090
+94  147.21158 147.21158
+95  125.84622 125.84622
+96  180.95345 180.95345
+97  201.74171 201.74171
+98  210.71769 210.71769
+99  183.91793 183.91793
+100 217.60438 217.60438
+101 101.46003 101.46003
+102 217.70411 217.70411
+103 190.34724 190.34724
+104 191.82684 191.82684
+105 168.40452 168.40452
+106 190.97694 190.97694
+107  42.50661  42.50661
+108 188.99244 188.99244
+109 176.50090 176.50090
+110 238.90649 238.90649
+111 166.66617 166.66617
+112 179.34486 179.34486
+113 228.83567 228.83567
+114 183.83285 183.83285
+115 221.53818 221.53818
+116 152.35878 152.35878
+117 129.23883 129.23883
+118 153.52366 153.52366
+119 194.20652 194.20652
+120 199.88088 199.88088
+121 196.88813 196.88813
+122 200.58661 200.58661
+123  74.78763  74.78763
+124 223.05523 223.05523
+125 182.10286 182.10286</code></pre>
 </div>
 </div>
 </section>
@@ -986,77 +340,15 @@ F-statistic: 37.22 on 3 and 87 DF,  p-value: 1.43e-15</code></pre>
 </section>
 <section id="part-7.-independent-verification" class="level4">
 <h4 class="anchored" data-anchor-id="part-7.-independent-verification">PART 7. Independent verification</h4>
-<p>The next chunk optionally verifies the reconstruction model on a segment of earlier observations withheld from calibration and not used for preliminary screening of tree rings against <em>y</em> (e.g., <span class="citation" data-cites="Meko&amp;Biondi2024">Meko et al. (<a href="#ref-Meko&amp;Biondi2024" role="doc-biblioref">2024</a>)</span>). Independent verification (IV) is optional in ReconStep, and is done only if you have specified years for either yrgoi or yrspi (see User settings), If yrgoi and yrspi are set to NA, IV is skipped. IV is rarely done in dendroclimatology because the period of overlap of climate data and tree-ring data is usually so short that people want to take advantage of all of the available data for calibration and cross-validation.</p>
-<p>Skill of IV is measured in StepRecon by the Nash-Sutcliffe efficiency (NSE). The NSE, computed as 1 minus the ratio of the variance of errors to variance of observed <em>y</em>, is widely used in hydrology <span class="citation" data-cites="Nash&amp;Sutcliffe1970">(<a href="#ref-Nash&amp;Sutcliffe1970" role="doc-biblioref">Nash and Sutcliffe 1970</a>)</span> and is equivalent to the coefficient of efficiency (CE), a dendroclimatic validation statistic for which the “null” prediction is the validation-period mean of <em>y</em> <span class="citation" data-cites="Cook&amp;Kairiukstis1990">(<a href="#ref-Cook&amp;Kairiukstis1990" role="doc-biblioref">Cook and Kairiukstis 1990</a>)</span>.</p>
-<p>If you have called for independent verification, the next chunk returns a time series plot and statistics. The plot has the following features:</p>
-<ol type="1">
-<li><p>Time series of observed and reconstructed <em>y</em> for the IV period.</p></li>
-<li><p>Horizontal line at the observed mean for the IV period. This line is the null prediction whose errors are used to compute the NSE.</p></li>
-<li><p>Horizontal line at the observed mean for the calibration period of the regression model. This line is the null prediction whose errors are used to compute the reduction-of-error (RE) statistic. Besides the NSE and RE, the Pearson correlation of predicted with observed <em>y</em> for the IV period is also computed. These statistics are annotated above the plot. Those and other statistics are stored in the list ResIV, available in the workspace and saved in the output file “RecOutput.Rdata”.</p></li>
-</ol>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>LIV  <span class="ot">&lt;-</span> <span class="fu">is.na</span>(yrgoi) <span class="sc">|</span> <span class="fu">is.na</span>(yrspi)</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span>LIV){</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Recall have reconstruction in yh, yryh; observed predictand in y,yry; calibration predictand in yc</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Will call function NashSutt to do the independent verification</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>kplotIV <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="co"># plot option calling for plot in next device</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>outputDir <span class="ot">&lt;-</span> <span class="cn">NA</span>   <span class="co"># ignored by NashSutt for kplotIV=1</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>gFileType <span class="ot">&lt;-</span> <span class="st">'png'</span> <span class="co"># file-type of plot (ignored for kplotIV=1)</span></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Cull time series of observed and reconstructed predictand for IV period</span></span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>L <span class="ot">&lt;-</span> (yry <span class="sc">&gt;=</span> yrgoi) <span class="sc">&amp;</span> (yry <span class="sc">&lt;=</span> yrspi)</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>yIV  <span class="ot">&lt;-</span> y[L]; yryIV <span class="ot">&lt;-</span> yrIV <span class="co"># observed</span></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>L <span class="ot">&lt;-</span> (yryh <span class="sc">&gt;=</span> yrgoi) <span class="sc">&amp;</span> (yryh <span class="sc">&lt;=</span> yrspi)</span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>yhIV  <span class="ot">&lt;-</span> yh[L]; yryhIV <span class="ot">&lt;-</span> yryh[L] <span class="co"># recon</span></span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>ycMean  <span class="ot">&lt;-</span> <span class="fu">mean</span>(yc)</span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>ResIV <span class="ot">&lt;-</span> <span class="fu">NashSutt</span>(yIV, yhIV, yrIV, ycMean, kplotIV, outputDir,gFileType) </span>
-<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>  ResIV <span class="ot">&lt;-</span> <span class="st">'You elected to not do independent verification'</span></span>
-<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 <section id="section-13" class="level80">
 <p class="heading"></p>
 </section>
 </section>
 <section id="part-8.-analysis-of-residuals" class="level4">
 <h4 class="anchored" data-anchor-id="part-8.-analysis-of-residuals">PART 8. Analysis of residuals</h4>
-<p>The next chunk does an analysis of residuals, which is a check for violation of regression assumptions. The residuals in regression are assumed to be normally distributed, non-autocorrelated, and homoscedastic <span class="citation" data-cites="Wilks2019">(<a href="#ref-Wilks2019" role="doc-biblioref">Wilks 2019</a>)</span>.</p>
-<p>The next chunk also tests the residuals for trend, which is a particular aspect of autocorrelation <span class="citation" data-cites="Chatfield2004">(<a href="#ref-Chatfield2004" role="doc-biblioref">Chatfield 2004</a>)</span>. A time series with positive or negative trend will generally have a positive autocorrelation out to some number of lags that depends on the length of the time series and the form of the trend (e.g.&nbsp;linear vs cyclic). It is important to identify trend in the residuals of regression models for reconstruction of climate from tree rings because the trend could indicate a flaw in the model. For example, consider a reconstruction model for annual precipitation, <em>y</em>, from tree rings and residuals with a positive trend. Because the residuals are computed as observed minus reconstructed <em>y</em>, the positive trend in residuals could indicate a downward trend in tree-growth driven by a climate variable (e.g., air temperature) other than <em>y</em>. The most likely suspect in this case is increased water stress in trees over time due to increasing evaporative stress related to warming. Another plausible source of trend in residuals here is improper removal of the age trend in converting measured ring widths to indices. The various tests applied in analysis of residuals here are outlined below. For all tests, the respective null hypothesis is rejected with 95% confidence if the <em>p</em> value of the statistic is lower than 0.05.</p>
-<ul>
-<li><p><strong>Normality</strong> is tested with the Lilliefors test <span class="citation" data-cites="Conover1999">(<a href="#ref-Conover1999" role="doc-biblioref">Conover 1999</a>)</span>, whose p-value is annotated on a plotted histogram. The null hypothesis is that the residuals are a sample from a normal distribution.</p></li>
-<li><p><strong>Heteroscedasticity</strong> is tested with Breusch-Pagan statistic <span class="citation" data-cites="Breusch&amp;Pagan1979">(<a href="#ref-Breusch&amp;Pagan1979" role="doc-biblioref">Breusch and Pagan 1979</a>)</span>, which is annotated on a scatterplot of residuals against predicted <em>y</em>. Heteroscedasticity is defined as residual variance that is not constant over the range of predicted <em>y</em>. The opposite of heteroscedasticity is homoscedasticity, which is constancy of variance of residuals. Regression residuals are assumed to be homoscedastic and that is the null hypothesis for the Breusch-Pagan test.<br>
-<br>
-A common sign of heteroskedasticity in streamflow reconstructions is a fanning-out pattern in the scatter plot of residuals against predicted <em>y</em>. In streamflow reconstruction, this pattern indicates that error variance increases toward higher predicted flows. The problem can sometimes be corrected by log10 <span class="citation" data-cites="Meko&amp;Therrell2001">(<a href="#ref-Meko&amp;Therrell2001" role="doc-biblioref">Meko et al. 2001</a>)</span> or square-root transformation <span class="citation" data-cites="Meko&amp;Touchan2020">(<a href="#ref-Meko&amp;Touchan2020" role="doc-biblioref">Meko et al. 2020</a>)</span>of the flows before using them as the regression predictand. A trade-off of transformation is that the reconstruction is then in transformed units, and the accuracy statistics apply to the reconstruction in the transformed units.</p></li>
-<li><p><strong>Autocorrelation</strong> is tested with the Durbin-Watson (DW) statistic <span class="citation" data-cites="Wilks2019">(<a href="#ref-Wilks2019" role="doc-biblioref">Wilks 2019</a>)</span>. The null hypothesis is that the population lag-1 autocorrelation of residuals is zero. The <em>p</em>-value of the DW statistic is annotated on a plot of the autocorrelation function of residuals.</p></li>
-<li><p><strong>Trend</strong> is tested with the Mann-Kendall trend statistic <span class="citation" data-cites="Wilks2019">(<a href="#ref-Wilks2019" role="doc-biblioref">Wilks 2019</a>)</span>, which addresses monotonic trend, whether linear or not. The null hypothesis is that the residuals have no trend. The Mann-Kendall test statistic and its <em>p</em>-value are annotated on a time series plot of residuals. A non-parametric trend line <span class="citation" data-cites="Haan2002">(<a href="#ref-Haan2002" role="doc-biblioref">Haan 2002</a>)</span> is added to the plot to help in the assessment. The significance of the Mann Kendall test is adjusted, if necessary, for any significant autocorrelation over and above that due to trend <span class="citation" data-cites="Wilks2019">(<a href="#ref-Wilks2019" role="doc-biblioref">Wilks 2019</a>)</span>. An annotated variance inflation factor (“VIF”) indicates if any such adjustment was applied. If VIF=1, no adjustment was needed. If VIF&gt;1, an adjustment was applied, and the size of VIF is related to the amplification of the variance of the test statistic due to autocorrelation.</p></li>
-</ul>
 <section id="section-14" class="level80">
 <p class="heading"></p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A few tests on residuals</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>F<span class="sc">$</span>DurbinWatson <span class="ot">&lt;-</span> <span class="fu">durbinWatsonTest</span>(M) <span class="co">#--- Durbin-Watson test for lag-1 autcorrelation </span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>hLillie <span class="ot">&lt;-</span> <span class="fu">lillie.test</span>(M<span class="sc">$</span>residuals); <span class="co"># Lilliefors test for normality</span></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Time plot with Mann-Kendall test for trend</span></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prepare input for mannken1</span></span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span><span class="fu">cbind</span>(yryc,M<span class="sc">$</span>residuals) <span class="co"># matrix with year and regression residuals</span></span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  kopt<span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">1</span>) <span class="co"># want plot; want adjustment of significance of Mann-Kendall statistic</span></span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># for autocorrelation if warranted</span></span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  kplot <span class="ot">&lt;-</span><span class="dv">1</span> <span class="co"># non-TRISH version, simple plot with trend line</span></span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  ylabTemp1 <span class="ot">&lt;-</span><span class="st">'Residual'</span></span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  ylabTemp2 <span class="ot">&lt;-</span> <span class="st">'Detrended Residual'</span></span>
-<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  textPlot <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'Regression Residuals with Nonparametric-Fit Trend Line,'</span>,<span class="st">'Year'</span>,ylabTemp1,</span>
-<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>                ylabTemp2)</span>
-<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>  FigNumber<span class="ot">=</span><span class="dv">0</span> <span class="co"># meaningless inpiut to mannken1 outside of TRISH</span></span>
-<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>  Din <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">X=</span>X,<span class="at">kopt=</span>kopt,<span class="at">kplot=</span>kplot,<span class="at">NextFigNumber=</span>FigNumber,<span class="at">textPlot=</span>textPlot,<span class="at">outputDir=</span><span class="st">'Null'</span>)</span>
-<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># mannken1 to get statistics and plot</span></span>
-<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>  ResMK <span class="ot">&lt;-</span> <span class="fu">mannken1</span>(Din)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1064,12 +356,6 @@ A common sign of heteroskedasticity in streamflow reconstructions is a fanning-o
 </figure>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rm</span>(Din)</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#---Histogram, with annotated Lilliefors test  p-value</span></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  Tit1 <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">'Residuals, E'</span>,</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>                <span class="st">'</span><span class="sc">\n</span><span class="st">  (p='</span>,<span class="fu">sprintf</span>(<span class="st">'%.2g'</span>,hLillie<span class="sc">$</span>p.value),<span class="st">'for H0 that E normal, from Lilliefors test)'</span>)</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hist</span>(M<span class="sc">$</span>residuals,<span class="at">xlab=</span><span class="st">'E (predictand data units)'</span>,<span class="at">ylab=</span><span class="st">'Frequency'</span>,<span class="at">main=</span>Tit1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1077,18 +363,6 @@ A common sign of heteroskedasticity in streamflow reconstructions is a fanning-o
 </figure>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># acf and its 95% CI</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  len1 <span class="ot">&lt;-</span> <span class="fu">floor</span>(<span class="fu">length</span>(yryc)<span class="sc">/</span><span class="dv">4</span>)</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  lagsPlot <span class="ot">&lt;-</span> <span class="fu">min</span>(len1,<span class="dv">20</span>)</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  acfMy <span class="ot">&lt;-</span> <span class="fu">acf</span>(M<span class="sc">$</span>residuals, <span class="at">lag.max=</span>lagsPlot, <span class="at">type =</span> <span class="st">"correlation"</span>,</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">plot =</span> <span class="cn">TRUE</span>,<span class="at">xlab=</span><span class="st">'Lag (yr)'</span>, <span class="at">ylab =</span> <span class="st">'ACF'</span>)</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  r1 <span class="ot">&lt;-</span> acfMy<span class="sc">$</span>acf[<span class="dv">2</span>] <span class="co"># lag-1 autocorrelation</span></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>      <span class="co">#               '\n  (p=',sprintf('%.2g',BP$p),' for H0 that E homoscedastic)',</span></span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">#               '\n(from Breusch-Pagan Test)')</span></span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  r1Str <span class="ot">=</span><span class="fu">paste</span>(<span class="st">'r(1)='</span>,<span class="fu">sprintf</span>(<span class="st">'%5.2f'</span>,r1),<span class="st">'</span><span class="sc">\n</span><span class="st">DW  statistic='</span>,<span class="fu">sprintf</span>(<span class="st">'%6.1f'</span>,F<span class="sc">$</span>DurbinWatson<span class="sc">$</span>dw),</span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>               <span class="st">'</span><span class="sc">\n</span><span class="st">p='</span>,<span class="fu">sprintf</span>(<span class="st">'%6.3f'</span>,F<span class="sc">$</span>DurbinWatson<span class="sc">$</span>p))</span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">text</span>(lagsPlot,<span class="fl">0.9</span>,r1Str,<span class="at">adj=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1096,19 +370,6 @@ A common sign of heteroskedasticity in streamflow reconstructions is a fanning-o
 </figure>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Scatter of residuals against fitted values, with annotated p=value for Breusch-Pagan test. </span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  BP <span class="ot">&lt;-</span> <span class="fu">ncvTest</span>(M)</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (BP<span class="sc">$</span>p<span class="sc">&gt;</span><span class="fl">0.05</span>){</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    strBP <span class="ot">&lt;-</span> <span class="st">' (cannot reject at 0.05)'</span></span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    strBP <span class="ot">&lt;-</span><span class="st">' (reject at 0.05)'</span></span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  Tit2 <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">'Breusch-Pagan test; H0: errors homoskedastic'</span>,</span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>                <span class="st">'</span><span class="sc">\n</span><span class="st">p='</span>,<span class="fu">sprintf</span>(<span class="st">'%G'</span>,BP<span class="sc">$</span>p),strBP)</span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(M<span class="sc">$</span>fitted.values,M<span class="sc">$</span>residuals,<span class="at">xlab=</span><span class="st">'Fitted Values'</span>,</span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab=</span><span class="st">'Residuals'</span>,</span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">main=</span>Tit2)</span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">h=</span><span class="dv">0</span>,<span class="at">lty=</span><span class="dv">2</span>,<span class="at">col=</span><span class="st">'#808080'</span>) <span class="co"># dash gray</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1124,78 +385,9 @@ A common sign of heteroskedasticity in streamflow reconstructions is a fanning-o
 </section>
 <section id="part-9.-split-sample-analysis-to-check-stability-of-reconstruction-model" class="level4">
 <h4 class="anchored" data-anchor-id="part-9.-split-sample-analysis-to-check-stability-of-reconstruction-model">PART 9. Split-sample analysis to check stability of reconstruction model</h4>
-<p>The next chunk checks the temporal stability of the model estimated on the full calibration period by split-sample calibration/validation <span class="citation" data-cites="Snee1977">(<a href="#ref-Snee1977" role="doc-biblioref">Snee 1977</a>)</span>. The full calibration period is split in half (earlier half longer if total length odd). The model is then re-calibrated on each half of the full period and validated on the other half. Validation skill is measured with “skill” statistics.</p>
-<p>The split-sample exercise applies linear regression, but in ReconStep there is no automatic selection of predictors in calibrating the split-sample models. Those predictors are the same variables selected as predictors for the full-period reconstruction model.</p>
-<p>Consider the first half as period A and the second half as period B. The model is first fit to A and validated on B. The model is then fit to B and validated on A. Validation consists of computing the RE statistic on residuals for the validation period. An RE&gt;0 indicates the model performs better, or has a lower sum of squares of errors, than a null model in which the prediction for each year is the calibration-period observed mean of <em>y</em>. In that sense, RE&gt;0 indicates “some” skill.</p>
-<p>Split-sample calibration/validation as described here is not strictly “independent” validation, because the full period of overlap of <em>y</em> with tree-ring data has been used to pick the predictor variables for the reconstruction model.</p>
-<p>A figure with time series plots of observed <em>y</em> and split-sample predictions of <em>y</em> is produced in the console. A horizontal line, called the “null prediction is plotted to mark the no-skill prediction for each validation period. The reduction of error (RE; <span class="citation" data-cites="Fritts&amp;Guiot1990">Fritts et al. (<a href="#ref-Fritts&amp;Guiot1990" role="doc-biblioref">1990</a>)</span>) statistic for validation on the early and late halves is annotated on the figure. If the reconstruction for some observation is closer than the null prediction to the observed <em>y</em>, that observation contributes positively to RE; otherwise, the contribution is negative. Large departures have an amplified effect on RE because RE is computed from the sum-of-squares of differences of observed and predicted. RE&gt;0 is interpreted as a model with”some” skill.</p>
 <section id="section-16" class="level80">
 <p class="heading"></p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Review</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co"># M$Model is data frame with calibration-period  predictand in col 1 and predictors in remaining columns </span></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co"># yrv1 is vector of predictand years for calibration period, with length mv1</span></span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Need to regress col 1 of M#Model on the remaining columns fo#</span></span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Will call Meko's function ssValid to do the split-sample calibration-validation</span></span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   First make pointer to the rows of M$Model corresponding to A (early) and B  (late)</span></span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   Call ssValid twice, switching the row pointer for calibration and valdation</span></span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   Store results for both halves.</span></span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot results in 1x1 figure with time plots of observed and validation-predicted predicand, with vertical line splitting halves</span></span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Make pointer to halves</span></span>
-<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>nE  <span class="ot">&lt;-</span> <span class="fu">ceil</span>(mv1<span class="sc">/</span><span class="dv">2</span>) <span class="co"># sample size, early half</span></span>
-<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>nL <span class="ot">=</span> mv1<span class="sc">-</span>nE  <span class="co"># sample size late</span></span>
-<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>i1 <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>nE; i2 <span class="ot">&lt;-</span> (nE<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>mv1   <span class="co"># pointer to rows</span></span>
-<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>y1 <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(M<span class="sc">$</span>model[,<span class="dv">1</span>])</span>
-<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>X1 <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(M<span class="sc">$</span>model[,<span class="sc">-</span><span class="dv">1</span>])</span>
-<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>nX1 <span class="ot">&lt;-</span> <span class="fu">dim</span>(X1)[<span class="dv">2</span>]</span>
-<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>iuse <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>nX1</span>
-<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>resSScalE <span class="ot">&lt;-</span> <span class="fu">ssValid</span>(y1,X1,i1,i2,iuse) <span class="co"># cal on first, val on 2nd</span></span>
-<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>resSScalL <span class="ot">&lt;-</span> <span class="fu">ssValid</span>(y1,X1,i2,i1,iuse) <span class="co"># cal on first, val on 2nd</span></span>
-<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>atemp <span class="ot">&lt;-</span><span class="fu">bquote</span> (.R<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>strE <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">'RE='</span>,<span class="fu">sprintf</span>(<span class="st">'%5.2f'</span>,resSScalL<span class="sc">$</span>RE))</span>
-<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>strL <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">'RE='</span>,<span class="fu">sprintf</span>(<span class="st">'%5.2f'</span>,resSScalE<span class="sc">$</span>RE))</span>
-<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Get SS predctions</span></span>
-<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>yra1 <span class="ot">&lt;-</span>yrv1[i1]; yra2 <span class="ot">&lt;-</span>yrv1[i2]</span>
-<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>yrmid <span class="ot">&lt;-</span> <span class="fl">0.5</span><span class="sc">*</span>(yra1[<span class="fu">length</span>(yra1)] <span class="sc">+</span> yra2[<span class="dv">1</span>])</span>
-<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>a1 <span class="ot">&lt;-</span>resSScalL<span class="sc">$</span>ssPreds</span>
-<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>a2 <span class="ot">&lt;-</span>resSScalE<span class="sc">$</span>ssPreds</span>
-<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a><span class="co"># x and y for null prediction horiz lines</span></span>
-<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a>mn1 <span class="ot">&lt;-</span> resSScalL<span class="sc">$</span>MeanObsCalibPd <span class="co"># Late period obs calib mean</span></span>
-<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>mn2 <span class="ot">&lt;-</span> resSScalE<span class="sc">$</span>MeanObsCalibPd <span class="co"># Early period obs calib mean</span></span>
-<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>xmn1 <span class="ot">=</span> <span class="fu">c</span>(yra1[<span class="dv">1</span>],yra1[<span class="fu">length</span>(yra1)])</span>
-<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>xmn2 <span class="ot">=</span> <span class="fu">c</span>(yra2[<span class="dv">1</span>],yra2[<span class="fu">length</span>(yra2)])</span>
-<span id="cb32-39"><a href="#cb32-39" aria-hidden="true" tabindex="-1"></a>ymn1 <span class="ot">=</span><span class="fu">c</span>(mn1,mn1); ymn2 <span class="ot">=</span><span class="fu">c</span>(mn2,mn2)</span>
-<span id="cb32-40"><a href="#cb32-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-41"><a href="#cb32-41" aria-hidden="true" tabindex="-1"></a><span class="co"># build ylims</span></span>
-<span id="cb32-42"><a href="#cb32-42" aria-hidden="true" tabindex="-1"></a>fscale1 <span class="ot">&lt;-</span> <span class="fl">0.01</span>; fscale2 <span class="ot">&lt;-</span> <span class="fl">0.6</span></span>
-<span id="cb32-43"><a href="#cb32-43" aria-hidden="true" tabindex="-1"></a>yhi <span class="ot">&lt;-</span> <span class="fu">max</span>(y1,a1,a2); ylo <span class="ot">&lt;-</span> <span class="fu">min</span>(y1,a1,a2)</span>
-<span id="cb32-44"><a href="#cb32-44" aria-hidden="true" tabindex="-1"></a>deltay <span class="ot">&lt;-</span> (yhi<span class="sc">-</span>ylo)</span>
-<span id="cb32-45"><a href="#cb32-45" aria-hidden="true" tabindex="-1"></a>yhi <span class="ot">&lt;-</span> yhi<span class="sc">+</span>fscale2<span class="sc">*</span>deltay</span>
-<span id="cb32-46"><a href="#cb32-46" aria-hidden="true" tabindex="-1"></a>ylo <span class="ot">&lt;-</span> ylo <span class="sc">-</span> fscale1<span class="sc">*</span>deltay</span>
-<span id="cb32-47"><a href="#cb32-47" aria-hidden="true" tabindex="-1"></a>ylims <span class="ot">&lt;-</span><span class="fu">c</span>(ylo,yhi)</span>
-<span id="cb32-48"><a href="#cb32-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-49"><a href="#cb32-49" aria-hidden="true" tabindex="-1"></a>xlims <span class="ot">&lt;-</span> <span class="fu">c</span>(yrgoc<span class="dv">-1</span>, yrspc<span class="sc">+</span><span class="dv">1</span>)</span>
-<span id="cb32-50"><a href="#cb32-50" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(yrv1,v1,<span class="at">type=</span><span class="st">"o"</span>, <span class="at">col=</span><span class="st">"black"</span>, <span class="at">pch=</span><span class="st">"o"</span>, </span>
-<span id="cb32-51"><a href="#cb32-51" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab=</span><span class="st">'Year'</span>,<span class="at">ylab=</span><span class="st">"Predictand"</span>, <span class="at">lty=</span><span class="dv">1</span>,<span class="at">xlim=</span>xlims,<span class="at">ylim=</span>ylims)</span>
-<span id="cb32-52"><a href="#cb32-52" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(yra1, a1, <span class="at">col=</span><span class="st">"red"</span>,<span class="at">lty=</span><span class="dv">2</span>, <span class="at">pch=</span><span class="st">"*"</span>,<span class="at">type=</span><span class="st">"b"</span>)</span>
-<span id="cb32-53"><a href="#cb32-53" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(xmn1,ymn1,<span class="at">col=</span><span class="st">"red"</span>)</span>
-<span id="cb32-54"><a href="#cb32-54" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(yra2, a2, <span class="at">col=</span><span class="st">"blue"</span>,<span class="at">lty=</span><span class="dv">2</span>,<span class="at">pch=</span><span class="st">"*"</span>,<span class="at">type=</span><span class="st">"b"</span>)</span>
-<span id="cb32-55"><a href="#cb32-55" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(xmn2,ymn2,<span class="at">col=</span><span class="st">"blue"</span>)</span>
-<span id="cb32-56"><a href="#cb32-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-57"><a href="#cb32-57" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v=</span>yrmid,<span class="at">col=</span><span class="st">"gray"</span>)</span>
-<span id="cb32-58"><a href="#cb32-58" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(yra1[<span class="dv">1</span>],ylims[<span class="dv">2</span>],strE,<span class="at">adj=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))</span>
-<span id="cb32-59"><a href="#cb32-59" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(yra2[<span class="dv">1</span>],ylims[<span class="dv">2</span>],strL,<span class="at">adj=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))</span>
-<span id="cb32-60"><a href="#cb32-60" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">'Split-sample prediction skill'</span>)</span>
-<span id="cb32-61"><a href="#cb32-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-62"><a href="#cb32-62" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend=</span><span class="fu">c</span>(<span class="st">"Observed"</span>,<span class="st">"Recon-early"</span>,<span class="st">"Null-early"</span>,<span class="st">"Recon-Late"</span>,<span class="st">"Null-late"</span>),</span>
-<span id="cb32-63"><a href="#cb32-63" aria-hidden="true" tabindex="-1"></a>       <span class="at">col=</span><span class="fu">c</span>(<span class="st">"black"</span>,<span class="st">"red"</span>, <span class="st">"red"</span>,<span class="st">"blue"</span>,<span class="st">"blue"</span>),</span>
-<span id="cb32-64"><a href="#cb32-64" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">1</span>), <span class="at">cex=</span><span class="fl">0.8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1203,12 +395,6 @@ A common sign of heteroskedasticity in streamflow reconstructions is a fanning-o
 </figure>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>whatsUp <span class="ot">&lt;-</span> <span class="st">'Results for split-sample (SS) analysis, calibrated on early (...calE) and late (...calL)'</span> </span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>EarlyHalf <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">'Early = '</span>,<span class="fu">as.integer</span>(yra1[<span class="dv">1</span>]),<span class="st">'-'</span>,<span class="fu">as.integer</span>(yra1[<span class="fu">length</span>(yra1)]))</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>LateHalf <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">'Late = '</span>,<span class="fu">as.integer</span>(yra2[<span class="dv">1</span>]),<span class="st">'-'</span>,<span class="fu">as.integer</span>(yra2[<span class="fu">length</span>(yra2)]))</span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>resSS <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">what=</span>whatsUp,<span class="at">EarlyHalf=</span>EarlyHalf,<span class="at">LateHalf=</span>LateHalf,</span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">resSScalE=</span>resSScalE,<span class="at">resSScalL=</span>resSScalL)</span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(whatsUp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="section-17" class="level80">
@@ -1217,47 +403,9 @@ A common sign of heteroskedasticity in streamflow reconstructions is a fanning-o
 </section>
 <section id="part-10.-confidence-interval-for-reconstruction" class="level4">
 <h4 class="anchored" data-anchor-id="part-10.-confidence-interval-for-reconstruction">PART 10. Confidence interval for reconstruction</h4>
-<p>The next chunk plots the annual reconstruction of <em>y</em> with its 50% confidence interval (CI). The CI is computed as <span class="math inline">\(\hat{y} \pm 0.6745\ \rm{RMSE_{cv}}\)</span>, where RMSE<sub>cv</sub> is the root-mean-square error from cross-validation, and the errors are assumed to be normally distributed.</p>
 <section id="section-18" class="level79">
 <p class="heading"></p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Compute calibration root-mean-square error (RMSEc), just to be able to compare </span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co"># that to the cross-validation RMSE.</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"># reconstructed value, lower 50% CI and upper 50% CI; then plot the the series</span></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>RMSEc <span class="ot">&lt;-</span>  <span class="fu">sqrt</span>(<span class="fu">sum</span>(M<span class="sc">$</span>residuals<span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span>(M<span class="sc">$</span>df.residual)) <span class="co"># root-mean-square error of calib</span></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>RMSE <span class="ot">&lt;-</span> F<span class="sc">$</span>RMSEcv <span class="co"># but use the cross-validation RMSE for the confidence interval on reconstruction</span></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>yhlo<span class="ot">&lt;-</span>yh<span class="fl">-0.6475</span><span class="sc">*</span>RMSE <span class="co"># upper 50% </span></span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>yhhi<span class="ot">&lt;-</span>yh<span class="fl">+0.6475</span><span class="sc">*</span> RMSE <span class="co"># lower 50%</span></span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>YhCI<span class="ot">&lt;-</span><span class="fu">cbind</span>(yh,yhlo,yhhi)</span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>namestemp<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">'Recon'</span>,<span class="st">'Lower 50%'</span>,<span class="st">'Upper 50%'</span>)</span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>YhCI.ts<span class="ot">&lt;-</span> <span class="fu">ts</span>(YhCI,<span class="at">start=</span>yryh[<span class="dv">1</span>],<span class="at">frequency=</span><span class="dv">1</span>,<span class="at">names=</span>namestemp)</span>
-<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="co"># time series for plot and CI</span></span>
-<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>w <span class="ot">&lt;-</span> yh; yrw <span class="ot">&lt;-</span> yryh <span class="co">#  reconstruction </span></span>
-<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute shaded polygon x and y</span></span>
-<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>Xtemp <span class="ot">&lt;-</span> <span class="fu">cbind</span>(yryh,yhlo,yhhi) <span class="co"># matrix with year as col 1, lower CI as col 2, upper CI as col 3</span></span>
-<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>ResTemp <span class="ot">&lt;-</span> <span class="fu">xyCI</span>(Xtemp)</span>
-<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>xP <span class="ot">&lt;-</span> ResTemp<span class="sc">$</span>x;   yP <span class="ot">&lt;-</span> ResTemp<span class="sc">$</span>y</span>
-<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Limits for plot</span></span>
-<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>yLo <span class="ot">&lt;-</span> <span class="fu">min</span>(Xtemp[,<span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>])</span>
-<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>yHi <span class="ot">&lt;-</span> <span class="fu">max</span>(Xtemp[,<span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>])</span>
-<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>ynudge <span class="ot">&lt;-</span> <span class="fl">0.02</span> <span class="sc">*</span> (yHi<span class="sc">-</span>yLo)</span>
-<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>ylims <span class="ot">=</span> <span class="fu">c</span>(yLo<span class="sc">-</span>ynudge, yHi<span class="sc">+</span>ynudge)</span>
-<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>xlims <span class="ot">=</span> <span class="fu">c</span>(yryh[<span class="dv">1</span>]<span class="sc">-</span><span class="dv">1</span>,(<span class="fu">max</span>(yryh)<span class="sc">+</span><span class="dv">1</span>))</span>
-<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Strings for plot</span></span>
-<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>strRecYrs <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="fu">sprintf</span>(<span class="st">'%d'</span>,yryh[<span class="dv">1</span>]),<span class="st">'-'</span>,<span class="fu">sprintf</span>(<span class="st">'%d'</span>,yryh[<span class="fu">length</span>(yryh)]),<span class="at">sep=</span><span class="st">''</span>)</span>
-<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>Tit1 <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">'Reconstruction'</span>,<span class="st">', '</span>,strRecYrs,</span>
-<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>              <span class="st">'</span><span class="sc">\n</span><span class="st">(50% CI shaded; dashed line at reconstructed mean)'</span>,<span class="at">sep=</span><span class="st">''</span>)</span>
-<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>ylab1 <span class="ot">&lt;-</span> <span class="st">'Predictand'</span></span>
-<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
-<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(yryh,yh,<span class="at">type=</span><span class="st">"l"</span>,<span class="at">col=</span><span class="st">"blue"</span>,<span class="at">xlim=</span>xlims,<span class="at">ylim=</span>ylims,</span>
-<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab=</span>ylab1,<span class="at">xlab=</span><span class="st">'Year'</span>,<span class="at">main=</span>Tit1)</span>
-<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="fu">mean</span>(yh),<span class="at">lty=</span><span class="dv">2</span>,<span class="at">col=</span><span class="st">'#808080'</span>) <span class="co"># dash gray</span></span>
-<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a><span class="fu">polygon</span>(xP,yP, <span class="at">col=</span><span class="fu">rgb</span>(<span class="fl">1.00</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="fl">0.1</span>),<span class="at">border=</span><span class="cn">NA</span>) <span class="co"># mustard</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1265,28 +413,6 @@ A common sign of heteroskedasticity in streamflow reconstructions is a fanning-o
 </figure>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # OLD CODE, COMMENTED OUT</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co"># YhCI&lt;-cbind(yh,yhlo,yhhi)</span></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="co"># namestemp&lt;-c('Recon','Lower 50%','Upper 50%')</span></span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># YhCI.ts&lt;- ts(YhCI,start=yryh[1],frequency=1,names=namestemp)</span></span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ts.plot(YhCI.ts,col=c('black','red','red'),xlim=c(yryh[1],yryh[length(yh)]))</span></span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  </span></span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="co"># #% add line at mean, and title</span></span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="co"># abline(h=mean(yh),col="blue",lty=3)</span></span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="co"># title('Reconstruction with 50% CI')</span></span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a><span class="co">#--- STATUS</span></span>
-<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a><span class="co"># yh [matrix] is reconstruction for years yryh [numeric]</span></span>
-<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a><span class="co"># M [lm object] returned model from lm function</span></span>
-<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a><span class="co"># F$Rsquared, F$RsquaredAdj, etc, model statistics stored in list F. The list</span></span>
-<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   items actually generated from lm can also be extracted from the model </span></span>
-<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   object M. Other data and statistics can also be pulled from that model</span></span>
-<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a><span class="co">#   object. For example summary(M), fitted(M), ... </span></span>
-<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a><span class="co">#   the lis</span></span>
-<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a><span class="co"># colnames(W2)[F$ColsInModel] ... this returns "ids" of variables in the model.</span></span>
-<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a><span class="co">#   "Xn" refers to column n of chronology in input data frame; Ni or Pi </span></span>
-<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a><span class="co">#   refer to lag i, negative (N) or postive (P) relative to year of predictand</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="section-19" class="level79">
@@ -1295,102 +421,15 @@ A common sign of heteroskedasticity in streamflow reconstructions is a fanning-o
 </section>
 <section id="part-11.-save-reconstruction-and-statistics" class="level4">
 <h4 class="anchored" data-anchor-id="part-11.-save-reconstruction-and-statistics">PART 11. Save reconstruction and statistics</h4>
-<p>The next chunk saves time series and statistics output in the file “RecOutput.Rdata.” The file includes the following:</p>
-<ol type="1">
-<li>YhCI.ts: time series of reconstructed <em>y</em> with its 50% CI</li>
-<li>Z.ts: time series of observed and reconstructed <em>y</em> for the calibration period</li>
-<li>yrgoc, yrspc: first and last years of the calibration period</li>
-<li>F: a list with statistics and data on the modeling</li>
-<li>resSS: a list with results of split-sample calibration/validation</li>
-<li>resPCA: a list with results of principal component analysis of screened lagged tree-ring chronologies</li>
-</ol>
-<p>To recover the stored data, click “Session –Clear Workspace” from the top menu in RStudio. Then use your file browser to find “RecOutput.Rdata” and double-click on it. Variables, including 1-6 above, will appear in the workspace.</p>
-<p>You can examine a variable by clicking its name (e.g., “yrgoc”) in the console. Lists have multiple variables. To see contents of a list,type the list name followed by a dollar sign in the console. For example, for contents of F, type F$ at the R console. You can then click on the desired variable in the dropdown menu. The stored variables have been given intuitively descriptive names and are not described further here.</p>
 <section id="section-20" class="level79">
 <p class="heading"></p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Edit following line so that path matches where you want the .RData output file</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(yrgoc,yrspc,YhCI.ts, Z.ts,F,resSS,resPCA,<span class="at">file=</span><span class="fu">paste</span>(<span class="fu">here</span>(), <span class="st">'RecOutput.RData'</span>, <span class="at">sep =</span> <span class="st">""</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 </section>
 </section>
-</section>
-<section id="references" class="level3 unnumbered">
-
-
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
-<div id="ref-Breusch&amp;Pagan1979" class="csl-entry" role="listitem">
-Breusch, T. S., and A. R. Pagan. 1979. <span>“A Simple Test for Heteroscedasticity and Random Coefficient Variation.”</span> <em>Econometrica</em> 47 (5): 1287–94.
-</div>
-<div id="ref-Chatfield2004" class="csl-entry" role="listitem">
-Chatfield, Chris. 2004. <em>The Analysis of Time Series: <span>A</span>n Introduction</em>. Sixth Edition. Chapman &amp; Hall/CRC.
-</div>
-<div id="ref-Chowdhury&amp;Turin2020" class="csl-entry" role="listitem">
-Chowdhury, Mohammad Z. I., and T. C. Turin. 2020. <span>“Variable Selection Strategies and Its Importance in Clinical Prediction Modelling.”</span> <em>Family Medicine and Community Health</em> 8: e000262. <a href="https://doi.org/10.1136/fmch-2019-000262">https://doi.org/10.1136/fmch-2019-000262</a>.
-</div>
-<div id="ref-Conover1999" class="csl-entry" role="listitem">
-Conover, W. 1999. <em>Practical Nonparametric Statistics</em>. Third Edition. John Wiley &amp; Sons.
-</div>
-<div id="ref-Cook&amp;Kairiukstis1990" class="csl-entry" role="listitem">
-Cook, E. R., and L. A. Kairiukstis, eds. 1990. <em>Methods of Dendrochronology: Applications in the Environmental Sciences</em>. Kluwer Academic Publishers.
-</div>
-<div id="ref-Cook&amp;Meko1999" class="csl-entry" role="listitem">
-Cook, E. R., D. M. Meko, D. W. Stahle, and M. K. Cleaveland. 1999. <span>“Drought Reconstructions for the Continental <span>U</span>nited <span>S</span>tates.”</span> <em>Journal of Climate</em> 12: 1145–62. <a href="https://doi.org/10.1175/1520-0442(1999)012<1145:DRFTCU>2.0.CO;2">https://doi.org/10.1175/1520-0442(1999)012&lt;1145:DRFTCU&gt;2.0.CO;2</a>.
-</div>
-<div id="ref-Draper&amp;Smith1981" class="csl-entry" role="listitem">
-Draper, N. R., and H. Smith. 1981. <em>Applied Regression Analysis</em>. John Wiley &amp; Sons.
-</div>
-<div id="ref-Fritts1976" class="csl-entry" role="listitem">
-Fritts, H. C. 1976. <em>Tree Rings and Climate</em>. Academic Press.
-</div>
-<div id="ref-Fritts&amp;Guiot1990" class="csl-entry" role="listitem">
-Fritts, H. C., J. Guiot, and G. A. Gordon. 1990. <span>“Verification.”</span> In <em>Methods of Dendrochronology: Applications in the Environmental Sciences</em>, edited by E. R. Cook and L. A. Kairiukstis. Kluwer Academic Publishers.
-</div>
-<div id="ref-Haan2002" class="csl-entry" role="listitem">
-Haan, Charles T. 2002. <em>Statistical Methods in Hydrology</em>. Second Edition. Iowa State University Press.
-</div>
-<div id="ref-Mardia&amp;Kent1979" class="csl-entry" role="listitem">
-Mardia, K., J. Kent, and J. Bibby. 1979. <em>Multivariate Analysis</em>. Academic Press.
-</div>
-<div id="ref-Meko&amp;Stahle2011" class="csl-entry" role="listitem">
-Meko, D. M., D. W. Stahle, D. Griffin, and T. A. Knight. 2011. <span>“Inferring Precipitation–Anomaly Gradients from Tree Rings.”</span> <em>Quaternary International</em> 235: 89–100. <a href="https://doi.org/10.1016/j.quaint.2010.09.006">https://doi.org/10.1016/j.quaint.2010.09.006</a>.
-</div>
-<div id="ref-Meko&amp;Therrell2001" class="csl-entry" role="listitem">
-Meko, D. M., M. D. Therrell, C. H. Baisan, and M. K. Hughes. 2001. <span>“Sacramento <span>R</span>iver Flow Reconstructed to <span>A.D.</span> 869 from Tree Rings.”</span> <em>Journal of the American Water Resources Association</em> 37 (4): 1029–40. <a href="https://doi.org/10.1111/j.1752-1688.2001.tb05530.x">https://doi.org/10.1111/j.1752-1688.2001.tb05530.x</a>.
-</div>
-<div id="ref-Meko&amp;Touchan2020" class="csl-entry" role="listitem">
-Meko, D. M., R. Touchan, D. Kherchouche, and S. Slimani. 2020. <span>“Direct Versus Indirect Tree-Ring Reconstruction of Annual Discharge of <span>C</span>hemora <span>R</span>iver, <span>A</span>lgeria.”</span> <em>Forests</em> 11 (9): 986. <a href="https://doi.org/10.3390/f11090986">https://doi.org/10.3390/f11090986</a>.
-</div>
-<div id="ref-Meko1997a" class="csl-entry" role="listitem">
-Meko, David. 1997. <span>“Dendroclimatic Reconstruction with Time Varying Predictor Subsets of Tree Indices.”</span> <em>Journal of Climate</em> 10 (4): 687–96. <a href="https://doi.org/10.1175/1520-0442(1997)010<0687:DRWTVP>2.0.CO;2">https://doi.org/10.1175/1520-0442(1997)010&lt;0687:DRWTVP&gt;2.0.CO;2</a>.
-</div>
-<div id="ref-Meko&amp;Biondi2024" class="csl-entry" role="listitem">
-Meko, David M., Franco Biondi, Alan H. Taylor, et al. 2024. <span>“Runoff Variability in the <span>Truckee-Carson River Basin</span> from Tree Rings and a Water Balance Model.”</span> <em>Earth Interactions</em> 28 (1). <a href="https://doi.org/10.1175/EI-D-23-0018.1">https://doi.org/10.1175/EI-D-23-0018.1</a>.
-</div>
-<div id="ref-Michaelsen1987" class="csl-entry" role="listitem">
-Michaelsen, J. 1987. <span>“Cross-Validation in Statistical Climate Forecast Models.”</span> <em>Journal of Applied Climatology and Meteorology</em> 26: 1589–600.
-</div>
-<div id="ref-Nash&amp;Sutcliffe1970" class="csl-entry" role="listitem">
-Nash, J. E., and J. V. Sutcliffe. 1970. <span>“River Flow Forecasting Through Conceptual Models Part <span>I–A</span> Discussion of Principle.”</span> <em>Journal of Hydrology</em> 10 (3): 282–90.
-</div>
-<div id="ref-Rencher&amp;Pun1980" class="csl-entry" role="listitem">
-Rencher, A. C., and F. C. Pun. 1980. <span>“Inflation of <span>R</span><span class="math inline">\(^{2}\)</span> in Best Subset Regression.”</span> <em>Technometrics</em> 22 (1): 49–53. <a href="https://doi.org/10.1080/00401706.1980.10486100">https://doi.org/10.1080/00401706.1980.10486100</a>.
-</div>
-<div id="ref-Snee1977" class="csl-entry" role="listitem">
-Snee, R. D. 1977. <span>“Validation of Regression Models: Methods and Examples.”</span> <em>Technometrics</em> 19: 415–28. <a href="https://doi.org/10.1080/00401706.1977.10489581">https://doi.org/10.1080/00401706.1977.10489581</a>.
-</div>
-<div id="ref-Stockton&amp;Meko1983" class="csl-entry" role="listitem">
-Stockton, C. W., and D. M. Meko. 1983. <span>“Drought Recurrence in the <span>G</span>reat <span>P</span>lains as Reconstructed from Long-Term Tree-Ring Records.”</span> <em>Journal of Applied Climatology and Meteorology</em> 22: 17–29. <a href="https://doi.org/10.1175/1520-0450(1983)022<0017:DRITGP>2.0.CO;2">https://doi.org/10.1175/1520-0450(1983)022&lt;0017:DRITGP&gt;2.0.CO;2</a>.
-</div>
-<div id="ref-Stockton&amp;Fritts1973" class="csl-entry" role="listitem">
-Stockton, Charles W., and Harold C. Fritts. 1973. <span>“Long-Term Reconstruction of Water Level Changes for <span>Lake Athabasca</span> by Analysis of Tree Rings.”</span> <em>Journal of the American Water Resources Association</em> 9 (5): 1006–27. <a href="https://doi.org/10.1111/j.1752-1688.1973.tb05826.x">https://doi.org/10.1111/j.1752-1688.1973.tb05826.x</a>.
-</div>
-<div id="ref-Wilks2019" class="csl-entry" role="listitem">
-Wilks, Daniel S. 2019. <em>Statistical Methods in the Atmospheric Sciences</em>. Fourth Edition. Elsevier.
-</div>
-</div></section></div></main>
+</main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
