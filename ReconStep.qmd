@@ -6,16 +6,19 @@ execute:
 format: 
   html:
     page-layout: full
+    toc: true
+    toc-location: right
+    toc-title: Contents
 theme: cerulean
 bibliography: ReconStep.bib
 ---
 
 The original Rmd file (ReconStep.Rmd) with full explanations, the UWFs it calls, sample input data, and running instructions are can be download from the [GitHub repository](https://github.com/ltrr-arizona-edu/TRISH-R)
- 
+
 ```{r}
 rm(list=ls())
 
-pacman::p_load(here, rmarkdown, car, pracma, nortest, stringr, dplR, treeclim, resample, rjson, gplots)
+pacman::p_load(here, rmarkdown, tidyverse, car, pracma, nortest, treeclim, resample, rjson, gplots, ggstackplot, ggthemes)
 
 # Edit following line to match where you have stored user-written functions (UWFs)
 code_dir <- paste(here(), "/", sep = "")
@@ -139,7 +142,7 @@ par(ask=TRUE) # pause before each plot; no need to edit this line
 
 ################################################################################ 
 
-#### PART 1. Read input, optionally transform *y*, and build a lagged matrix of chronologies
+## PART 1. Read input, optionally transform *y*, and build a lagged matrix of chronologies
 
 ################################################################################ 
 
@@ -210,7 +213,7 @@ rm(tit1)
 
 ################################################################ 
 
-#### PART 2. Correlation screening of lagged chronology matrix
+## PART 2. Correlation screening of lagged chronology matrix
 
 ################################################################# 
 
@@ -352,7 +355,7 @@ sprintf('%s',colnames(W2))
 
 ################################################################ 
 
-#### PART 3. Optionally extend calibration period
+## PART 3. Optionally extend calibration period
 
 ################################################################# 
 
@@ -387,7 +390,7 @@ if ((nrow(Wtemp) != nrow(W2)) && Lstopc ) {
 
 ################################################################################ 
 
-#### PART 4. PCA transformation of chronologies
+## PART 4. PCA transformation of chronologies
 
 ############################################################################### 
 
@@ -434,7 +437,7 @@ if (dim(W3)[2]>2){
 
 ################################################################################ 
 
-#### PART 5. Regression modeling
+## PART 5. Regression modeling
 
 ################################################################################ 
 
@@ -491,7 +494,7 @@ title(sprintf('Adjusted R-squared = %5.2f',F$RsquaredAdj))
 
 ############################################################################### 
 
-#### PART 6. Reconstruction
+## PART 6. Reconstruction
 
 ################################################################################ 
 
@@ -561,7 +564,7 @@ print(QC1)
 
 ################################################################################ 
 
-#### PART 7. Independent verification
+## PART 7. Independent verification
 
 ```{r}
 
@@ -594,7 +597,7 @@ ResIV <- NashSutt(yIV, yhIV, yrIV, ycMean, kplotIV, outputDir,gFileType)
 
 ################################################################################ 
 
-#### PART 8. Analysis of residuals
+## PART 8. Analysis of residuals
 
 ################################################################################ 
 
@@ -662,7 +665,7 @@ hLillie <- lillie.test(M$residuals); # Lilliefors test for normality
 
 ################################################################################ 
 
-#### PART 9. Split-sample analysis to check stability of reconstruction model
+## PART 9. Split-sample analysis to check stability of reconstruction model
 
 ################################################################################ 
 
@@ -743,7 +746,7 @@ rm(whatsUp)
 
 ################################################################################ 
 
-#### PART 10. Confidence interval for reconstruction
+## PART 10. Confidence interval for reconstruction
 
 ############################################################################### 
 
@@ -813,23 +816,118 @@ polygon(xP,yP, col=rgb(1.00,0,0,0.1),border=NA) # mustard
 
 ############################################################################### 
 
-#### PART 11. New plots
+## PART 11. New plots
 
 ############################################################################### 
 
 ```{r}
+# Colors
+KGU.std <- "#2E471E"
+KGU.res <- "#495C39"
+NB.std <- "#35291D"
+NB.res <- "#56402D"
+precip <- "#5A84D4"
+prdctnd <- "#CB4E47"
+split.early <- "#EF8636"
+split.late <- "#8D69B8"
+```
+```{r}
 # Chronologies
-# Reconstruction
-plot(yryh,yh,type="l",col="blue",xlim=xlims,ylim=ylims,
-     ylab=ylab1,xlab='Year',main=Tit1)
-abline(h=mean(yh),lty=2,col='#808080') # dash gray
-polygon(xP,yP, col=rgb(1.00,0,0,0.1),border=NA) # mustard
+alph <- 0.7
+chrons <- read.csv(here("chrons.csv"))
+chron.stack <- chrons |> ggstackplot(
+  x = Year, y = c(NB.std, KGU.std, NB.res, KGU.res),
+  overlap = (c(1, 0, 1)),
+    template = ggplot() +
+    theme_stackplot() +
+    labs(x = "Year", y = "RWI"),
+  simplify_shared_axis = TRUE,
+  add = list(
+    geom_path(color = NB.std, alpha = alph) +
+      scale_y_continuous(guide = "none"),
+    geom_path(color = KGU.std, alpha = alph) + 
+      labs(title = "Standard"),
+    geom_path(color = NB.res, alpha = alph)+
+      scale_y_continuous(guide = "none"),
+    geom_path(color = KGU.res, alpha = alph) + 
+      labs(title = "Residuals")
+  )
+)
+plot(chron.stack)
+```
+```{r}
+# Winter precip
+tit1 <- paste('Winter Precipitation (Previous October—April)')
+plot(yrv,v,type='b',xlab='Year',ylab='Precipitation (mm)',main=tit1,col=precip)
+abline(h=mean(v),col='gray')
+```
+
+
+```{r}
+# Observed and reconstructed
+ts.plot(Z.ts,type='b',col=c(precip,prdctnd),xlim=c(yrgo,yrv1[length(v1)]), xlab="Year", ylab="Precipitation (mm)")
+abline(h=0)
+title('Observed (blue) and Reconstructed (red)')
+abline(h=mean(v1),col='grey')
+```
+
+```{r}
+# Split-sample validation
+xlims <- c(yrgoc-1, yrspc+1)
+fscale1 <- 0.01; fscale2 <- 0.6
+yhi <- max(y1,a1,a2); ylo <- min(y1,a1,a2)
+deltay <- (yhi-ylo)
+yhi <- yhi+fscale2*deltay
+ylo <- ylo - fscale1*deltay
+ylims <-c(ylo,yhi)
+plot(yrv1,v1,type="o", col="black", pch="o", 
+     xlab='Year',ylab="Precipitation (mm)", lty=1,xlim=xlims,ylim=ylims)
+lines(yra1, a1, col=split.early,lty=2, pch="*",type="b")
+lines(xmn1,ymn1,col=split.early)
+lines(yra2, a2, col=split.late,lty=2,pch="*",type="b")
+lines(xmn2,ymn2,col=split.late)
+abline(v=yrmid,col="gray")
+text(yra1[1],ylims[2],strE,adj=c(0,1))
+text(yra2[1],ylims[2],strL,adj=c(0,1))
+title('Split-sample prediction skill')
+legend("topright", legend=c("Observed","Recon-early","Null-early","Recon-Late","Null-late"),
+       col=c("black",split.early,split.early,split.late,split.late),
+       lty=c(1,2,1,2,1), cex=0.8)
+whatsUp <- 'Results for split-sample (SS) analysis, calibrated on early (...calE) and late (...calL)' 
+EarlyHalf <- paste('Early = ',as.integer(yra1[1]),'-',as.integer(yra1[length(yra1)]))
+LateHalf <- paste('Late = ',as.integer(yra2[1]),'-',as.integer(yra2[length(yra2)]))
+resSS <- list(what=whatsUp,EarlyHalf=EarlyHalf,LateHalf=LateHalf,
+               resSScalE=resSScalE,resSScalL=resSScalL)
+```
+
+```{r}
+## Reconstruction and PRISM
+
+# plot(yryh,yh,type="l",col="blue",xlim=xlims,ylim=ylims,
+#      ylab=ylab1,xlab='Year',main=Tit1)
+# abline(h=mean(yh),lty=2,col='#808080') # dash gray
+# polygon(xP,yP, col=rgb(1.00,0,0,0.1),border=NA) # mustard
+
+reconst.precip <- as.data.frame(cbind(yryh, yh)) |>
+  mutate(Year = as.numeric(yryh), 
+    Precip = as.numeric(yh)) |>
+  select(c(Year, Precip))
+reconst <- ggplot(data = NULL,) + 
+  geom_rect(aes(xmin = 1480, xmax = 1594, ymin = -Inf, ymax = Inf), col = "#E8E0D9", alpha = 0.2) +
+  geom_hline(aes(yintercept = mean(yh)), col = "#808080") +
+  geom_ribbon(aes(x = yryh, ymin = yhlo, ymax = yhhi), col = prdctnd, alpha = 0.3) +
+  geom_path(aes(x = yryh, y = yh), col = prdctnd, alpha = alph, linewidth = 0.5) +
+  geom_path(aes(x = yrv, y = v), col = precip, alpha = alph, linewidth = 0.5) + 
+  labs(x = "Year", y = "Precipitation (mm)", title = "Reconstruction, 1480—2020") +
+  theme_par()
+
+plot(reconst)
+
 ```
 
 ############################################################################### 
 
 #### PART 12. Save reconstruction and statistics
-
 
 ############################################################################### 
 
@@ -838,4 +936,4 @@ polygon(xP,yP, col=rgb(1.00,0,0,0.1),border=NA) # mustard
 save(yrgoc,yrspc,YhCI.ts, Z.ts,F,resSS,resPCA,file=paste(here(), 'RecOutput.RData', sep = ""))
 ```
 
-### References
+
