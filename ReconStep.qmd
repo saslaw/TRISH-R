@@ -1,12 +1,12 @@
 ---
 title: "Climate reconstruction from tree rings by stepwise regression"
+subtitle: "DISC 2026" 
 execute:
   echo: false
-output:
-  html_document:
-    df_print: paged
-  html_notebook: default
-  pdf_document: default
+format: 
+  html:
+    page-layout: full
+theme: cerulean
 bibliography: ReconStep.bib
 ---
 
@@ -19,29 +19,6 @@ pacman::p_load(here, rmarkdown, car, pracma, nortest, stringr, dplR, treeclim, r
 
 # Edit following line to match where you have stored user-written functions (UWFs)
 code_dir <- paste(here(), "/", sep = "")
-
-# The following five packages are essential to ReconStep.Rmd
-# library(rmarkdown)
-# library(car) 
-# library(pracma)
-# library(nortest)
-# library(stringr)
-
-# The next packages are not needed by ReconStep.Rmd but are needed for a 
-# couple chronology development scripts in the international course
-# library(dplR)
-# library(data.table)
-# library(treeclim)
-
-# The next packages are not needed by ReconStep.Rmd, but are needed by
-# ReconAnalog.R. You may comment out the next 4 lines if you do not plan on using
-# ReconAnalog.R.
-# Edit following line (4 lines) if you have not loaded the 4 packages and are 
-# not planning to use ReconAnalog.R. "Editing" here simply means "commenting out."
-# library(resample)
-# library(rjson)
-# library(ggplot2)
-# library(gplots)
 
 source(paste(code_dir,'LagYear.R',sep=''))  # build lagged matrix of chrons
 source(paste(code_dir,'PeriodCommon.R',sep=''))  # common period of overlap of chrons and predictand
@@ -833,9 +810,25 @@ polygon(xP,yP, col=rgb(1.00,0,0,0.1),border=NA) # mustard
 #   refer to lag i, negative (N) or postive (P) relative to year of predictand
 ```
 
+
 ############################################################################### 
 
-#### PART 11. Save reconstruction and statistics
+#### PART 11. New plots
+
+############################################################################### 
+
+```{r}
+# Chronologies
+# Reconstruction
+plot(yryh,yh,type="l",col="blue",xlim=xlims,ylim=ylims,
+     ylab=ylab1,xlab='Year',main=Tit1)
+abline(h=mean(yh),lty=2,col='#808080') # dash gray
+polygon(xP,yP, col=rgb(1.00,0,0,0.1),border=NA) # mustard
+```
+
+############################################################################### 
+
+#### PART 12. Save reconstruction and statistics
 
 
 ############################################################################### 
