@@ -654,12 +654,13 @@ hLillie <- lillie.test(M$residuals); # Lilliefors test for normality
   }
   Tit2 <- paste('Breusch-Pagan test; H0: errors homoskedastic',
                 '\np=',sprintf('%G',BP$p),strBP)
+
+png("figs/Breusch-Pagan.png", width = 750 , height = 420)
   plot(M$fitted.values,M$residuals,xlab='Fitted Values',
        ylab='Residuals',
        main=Tit2)
   abline(h=0,lty=2,col='#808080') # dash gray
-
-  
+dev.off()
 
 ```
 
@@ -857,18 +858,22 @@ plot(chron.stack)
 ```
 ```{r}
 # Winter precip
+png("figs/winter-precip.png", width = 750 , height = 420)
 tit1 <- paste('Winter Precipitation (Previous October—April)')
 plot(yrv,v,type='b',xlab='Year',ylab='Precipitation (mm)',main=tit1,col=precip)
 abline(h=mean(v),col='gray')
+dev.off()
 ```
 
 
 ```{r}
 # Observed and reconstructed
+png("figs/obsv-recon.png", width = 750 , height = 420)
 ts.plot(Z.ts,type='b',col=c(precip,prdctnd),xlim=c(yrgo,yrv1[length(v1)]), xlab="Year", ylab="Precipitation (mm)")
 abline(h=0)
 title('Observed (blue) and Reconstructed (red)')
 abline(h=mean(v1),col='grey')
+dev.off()
 ```
 
 ```{r}
@@ -880,6 +885,8 @@ deltay <- (yhi-ylo)
 yhi <- yhi+fscale2*deltay
 ylo <- ylo - fscale1*deltay
 ylims <-c(ylo,yhi)
+
+png("figs/split-sample.png", width = 750 , height = 420)
 plot(yrv1,v1,type="o", col="black", pch="o", 
      xlab='Year',ylab="Precipitation (mm)", lty=1,xlim=xlims,ylim=ylims)
 lines(yra1, a1, col=split.early,lty=2, pch="*",type="b")
@@ -898,6 +905,7 @@ EarlyHalf <- paste('Early = ',as.integer(yra1[1]),'-',as.integer(yra1[length(yra
 LateHalf <- paste('Late = ',as.integer(yra2[1]),'-',as.integer(yra2[length(yra2)]))
 resSS <- list(what=whatsUp,EarlyHalf=EarlyHalf,LateHalf=LateHalf,
                resSScalE=resSScalE,resSScalL=resSScalL)
+dev.off()
 ```
 
 ```{r}
@@ -920,9 +928,9 @@ reconst <- ggplot(data = NULL,) +
   geom_path(aes(x = yrv, y = v), col = precip, alpha = alph, linewidth = 0.5) + 
   labs(x = "Year", y = "Precipitation (mm)", title = "Reconstruction, 1480—2020") +
   theme_par()
-
+png("figs/reconst.png", width = 750 , height = 500)
 plot(reconst)
-
+dev.off()
 ```
 
 ############################################################################### 
