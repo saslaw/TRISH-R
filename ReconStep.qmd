@@ -18,7 +18,7 @@ The original Rmd file (ReconStep.Rmd) with full explanations, the UWFs it calls,
 ```{r}
 rm(list=ls())
 
-pacman::p_load(here, rmarkdown, tidyverse, car, pracma, nortest, treeclim, resample, rjson, gplots, ggstackplot, ggthemes)
+pacman::p_load(here, rmarkdown, tidyverse, car, pracma, nortest, treeclim, resample, rjson, gplots, ggstackplot, ggthemes, patchwork)
 
 # Edit following line to match where you have stored user-written functions (UWFs)
 code_dir <- paste(here(), "/", sep = "")
@@ -823,8 +823,8 @@ polygon(xP,yP, col=rgb(1.00,0,0,0.1),border=NA) # mustard
 
 ```{r}
 # Colors
-KGU.std <- "#2E471E"
-KGU.res <- "#495C39"
+KGU.std <- "#2E5F7F"
+KGU.res <- "#DA7842"
 NB.std <- "#35291D"
 NB.res <- "#56402D"
 precip <- "#5A84D4"
@@ -836,25 +836,45 @@ split.late <- "#8D69B8"
 # Chronologies
 alph <- 0.7
 chrons <- read.csv(here("chrons.csv"))
-chron.stack <- chrons |> ggstackplot(
-  x = Year, y = c(NB.std, KGU.std, NB.res, KGU.res),
-  overlap = (c(1, 0, 1)),
-    template = ggplot() +
-    theme_stackplot() +
-    labs(x = "Year", y = "RWI"),
-  simplify_shared_axis = TRUE,
-  add = list(
-    geom_path(color = NB.std, alpha = alph) +
-      scale_y_continuous(guide = "none"),
-    geom_path(color = KGU.std, alpha = alph) + 
-      labs(title = "Standard"),
-    geom_path(color = NB.res, alpha = alph)+
-      scale_y_continuous(guide = "none"),
-    geom_path(color = KGU.res, alpha = alph) + 
-      labs(title = "Residuals")
-  )
-)
+
+chron.std <- ggplot(data = chrons) +
+  geom_path(aes(x = Year, y = NB.std), color = NB.std) +
+  geom_path(aes(x = Year, y = KGU.std), color = KGU.std) +
+  xlab(NULL) +
+  ylab("RWI") +
+  theme_par() +
+  theme(plot.margin = margin(0,0,0,0))
+chron.res <- ggplot(data = chrons) +
+  geom_path(aes(x = Year, y = NB.res), color = NB.res) +
+  geom_path(aes(x = Year, y = KGU.res), color = KGU.res) +
+  ylab("RWI") +
+  theme_par() +
+  theme(plot.margin = margin(0,0,0,0))
+chron.stack <- chron.std / chron.res
+
+png("figs/stack.png", width = 1200 , height = 500)
 plot(chron.stack)
+dev.off()
+
+
+# chron.stack <- chrons |> ggstackplot(
+#   x = Year, y = c(NB.std, KGU.std, NB.res, KGU.res),
+#   overlap = (c(1, 0, 1)),
+#     template = ggplot() +
+#     theme_stackplot() +
+#     labs(x = "Year", y = "RWI"),
+#   simplify_shared_axis = TRUE,
+#   add = list(
+#     geom_path(color = NB.std, alpha = alph) +
+#       scale_y_continuous(guide = "none"),
+#     geom_path(color = KGU.std, alpha = alph) + 
+#       labs(title = "Standard"),
+#     geom_path(color = NB.res, alpha = alph)+
+#       scale_y_continuous(guide = "none"),
+#     geom_path(color = KGU.res, alpha = alph) + 
+#       labs(title = "Residuals")
+#   )
+# )
 ```
 ```{r}
 # Winter precip
